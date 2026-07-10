@@ -1,0 +1,21 @@
+Extra third party dependancies
+A.  added in Phase 1
+1. Bundle name: com.chefsandbakers.app for Flutter_Create
+2. Google OAuth Client required
+3. SMS Provider for OTP : FIrebase (NOT YET DONE)
+
+Apps Installed
+Flutter
+Deno
+Dart
+Supabase CLI
+
+
+Google OAUth set up in Subpabase : Authentication -> Sign in providers tab. (CUrrently connected to My First Project
+)
+
+
+
+===========================PEdning decisions=================
+1. We need to decide who will be the email providers for notify me.
+==================================================================

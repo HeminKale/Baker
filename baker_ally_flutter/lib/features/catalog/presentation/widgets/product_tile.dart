@@ -1,0 +1,187 @@
+import 'package:cached_network_image/cached_network_image.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../data/models/product.dart';
+import '../../data/models/product_variant.dart';
+import '../providers/catalog_providers.dart';
+import 'badge_row.dart';
+import 'shimmer_box.dart';
+
+/// One consistent tile design used by Level 2's grid (and, later, Home /
+/// Order Again / Wishlist) -- Planning docs/Architecture/02_catalog_tab.md §5.
+class ProductTile extends ConsumerWidget {
+  const ProductTile({super.key, required this.product});
+
+  final Product product;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final variant = product.displayVariant;
+    final quantity = variant == null ? 0 : ref.watch(localCartStubProvider.select((m) => m[variant.id] ?? 0));
+
+    return InkWell(
+      onTap: () => context.push('/product/${product.id}'),
+      child: Card(
+        clipBehavior: Clip.antiAlias,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            AspectRatio(
+              aspectRatio: 1,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  if (product.displayImageUrl != null)
+                    CachedNetworkImage(
+                      imageUrl: product.displayImageUrl!,
+                      fit: BoxFit.cover,
+                      placeholder: (context, url) => const ShimmerBox(),
+                      errorWidget: (context, url, error) => const Icon(Icons.image_not_supported_outlined),
+                    )
+                  else
+                    const Icon(Icons.image_not_supported_outlined),
+                  if (product.badges.isNotEmpty)
+                    Positioned(top: 4, left: 4, child: BadgeRow(badges: product.badges)),
+                ],
+              ),
+            ),
+            Flexible(
+              child: Padding(
+                padding: const EdgeInsets.all(8),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      product.name,
+                      maxLines: 2,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.bodyMedium?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    if (variant != null)
+                      Text(
+                        variant.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant),
+                      ),
+                    const SizedBox(height: 4),
+                    if (variant != null) _PriceRow(variant: variant),
+                    const SizedBox(height: 4),
+                    if (variant != null) _AddToCartControl(variant: variant, quantity: quantity),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class _PriceRow extends StatelessWidget {
+  const _PriceRow({required this.variant});
+
+  final ProductVariant variant;
+
+  String _rupees(int paise) => '₹${(paise / 100).toStringAsFixed(0)}';
+
+  @override
+  Widget build(BuildContext context) {
+    if (!variant.isOnSale) {
+      return Text(_rupees(variant.currentPrice), style: const TextStyle(fontWeight: FontWeight.bold));
+    }
+    return Row(
+      children: [
+        Text(
+          _rupees(variant.originalPrice),
+          style: const TextStyle(decoration: TextDecoration.lineThrough, color: Colors.grey, fontSize: 12),
+        ),
+        const SizedBox(width: 4),
+        Text(_rupees(variant.currentPrice), style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.green)),
+      ],
+    );
+  }
+}
+
+/// Button <-> stepper transition, `AnimatedSwitcher` 150ms, matching the
+/// interaction spec verbatim (02_catalog_tab.md §5 / Phase_Plan_Technical.md
+/// Phase 3.5). Backed by `localCartStubProvider` -- a local-only stand-in
+/// until Milestone 3 wires the real server cart.
+class _AddToCartControl extends ConsumerWidget {
+  const _AddToCartControl({required this.variant, required this.quantity});
+
+  final ProductVariant variant;
+  final int quantity;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    const compactButtonStyle = ButtonStyle(
+      padding: WidgetStatePropertyAll(EdgeInsets.symmetric(vertical: 4)),
+      minimumSize: WidgetStatePropertyAll(Size(0, 32)),
+      textStyle: WidgetStatePropertyAll(TextStyle(fontSize: 12)),
+    );
+    const compactIconConstraints = BoxConstraints(minWidth: 32, minHeight: 32);
+
+    if (variant.isOutOfStock) {
+      return SizedBox(
+        width: double.infinity,
+        child: OutlinedButton(style: compactButtonStyle, onPressed: null, child: const Text('Out of Stock')),
+      );
+    }
+
+    return AnimatedSwitcher(
+      duration: const Duration(milliseconds: 150),
+      child: quantity == 0
+          ? SizedBox(
+              key: const ValueKey('add'),
+              width: double.infinity,
+              child: FilledButton(
+                style: compactButtonStyle,
+                onPressed: () => addToCartStub(context, ref, variant),
+                child: const Text('Add to Cart'),
+              ),
+            )
+          : Row(
+              key: const ValueKey('stepper'),
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  constraints: compactIconConstraints,
+                  padding: EdgeInsets.zero,
+                  iconSize: 18,
+                  onPressed: () => ref.read(localCartStubProvider.notifier).decrement(variant.id),
+                  icon: const Icon(Icons.remove),
+                ),
+                Text('$quantity'),
+                IconButton(
+                  constraints: compactIconConstraints,
+                  padding: EdgeInsets.zero,
+                  iconSize: 18,
+                  onPressed: () => addToCartStub(context, ref, variant),
+                  icon: const Icon(Icons.add),
+                ),
+              ],
+            ),
+    );
+  }
+}
+
+/// Shared by the catalog tile and product detail's CTA -- caps at
+/// `variant.stockQty` and surfaces "Max stock reached", per
+/// Planning docs/Architecture/05_cart_and_checkout.md §1
+/// ("Tap + beyond stock_qty -> + button disabled, shows tooltip").
+void addToCartStub(BuildContext context, WidgetRef ref, ProductVariant variant) {
+  final added = ref.read(localCartStubProvider.notifier).add(variant.id, maxQty: variant.stockQty);
+  if (!added) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Max stock reached'), duration: Duration(seconds: 1)),
+    );
+  }
+}

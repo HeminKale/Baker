@@ -11,6 +11,7 @@
 3. [User, Profile, Role & Privilege System](#3-user-profile-role--privilege-system)
 4. [Core Database Tables](#4-core-database-tables)
 5. [Product & Catalog Architecture](#5-product--catalog-architecture)
+    - [5a. Reviews & Ratings Architecture](#5a-reviews--ratings-architecture)
 6. [Pricing Architecture](#6-pricing-architecture)
 7. [Image Architecture](#7-image-architecture)
 8. [Cart Architecture](#8-cart-architecture)
@@ -18,6 +19,7 @@
 10. [Payment Architecture](#10-payment-architecture)
 11. [Shipping & Delivery Architecture](#11-shipping--delivery-architecture)
 12. [Notification Architecture](#12-notification-architecture)
+    - [12a. Back-in-Stock Email Notifications](#12a-back-in-stock-email-notifications)
 13. [Brownie Points — Placeholder](#13-brownie-points--placeholder)
 14. [Admin Web Panel Architecture](#14-admin-web-panel-architecture)
 15. [Offline & Sync Strategy](#15-offline--sync-strategy)
@@ -388,6 +390,27 @@ product_images
   created_at      TIMESTAMPTZ DEFAULT now()
 ```
 
+### Reviews & Ratings
+
+See §5a for the full architecture. `order_items` (referenced below) is defined in "Cart & Orders" further down this section — reviews can't be migrated/built before Phase 3/4's order tables exist, since eligibility depends on them.
+
+```sql
+product_reviews
+  id                UUID PRIMARY KEY
+  product_id        UUID FK → products.id NOT NULL
+  user_id           UUID FK → users.id NOT NULL
+  order_item_id     UUID FK → order_items.id NOT NULL   -- proof of verified purchase
+  overall_rating    SMALLINT NOT NULL         -- 1-5, CHECK (overall_rating BETWEEN 1 AND 5)
+  quality_rating    SMALLINT NULL             -- 1-5 each, optional finer breakdown
+  value_rating      SMALLINT NULL             -- shown as the category "rings" on product detail
+  packaging_rating  SMALLINT NULL
+  accuracy_rating   SMALLINT NULL             -- "matches the description" rating
+  comment           TEXT NULL
+  tags              TEXT[] NULL               -- quick-select chips, e.g. {Great Quality, Slow Delivery}
+  created_at        TIMESTAMPTZ DEFAULT now()
+  UNIQUE (user_id, product_id)                -- one review per user per product, no matter how many times re-bought
+```
+
 ### Discounts
 
 ```sql
@@ -489,6 +512,14 @@ wishlists
   created_at      TIMESTAMPTZ DEFAULT now()
   UNIQUE (user_id, variant_id)
 
+stock_notify_requests        -- see §12a Back-in-Stock Email Notifications
+  id              UUID PRIMARY KEY
+  user_id         UUID FK → users.id NOT NULL
+  variant_id      UUID FK → product_variants.id NOT NULL
+  notified_at     TIMESTAMPTZ NULL         -- NULL = still waiting; set once the email sends
+  created_at      TIMESTAMPTZ DEFAULT now()
+  UNIQUE (user_id, variant_id)
+
 notifications
   id              UUID PRIMARY KEY
   user_id         UUID FK → users.id NOT NULL
@@ -525,6 +556,10 @@ CREATE INDEX idx_subcategories_category ON sub_categories(category_id) WHERE is_
 CREATE INDEX idx_variants_product ON product_variants(product_id) WHERE is_active = true;
 CREATE INDEX idx_product_images_product ON product_images(product_id);
 
+-- Reviews & ratings -- product_id lookup drives both the review list and
+-- the live-aggregated rating summary on product detail (§5a)
+CREATE INDEX idx_product_reviews_product ON product_reviews(product_id);
+
 -- Orders
 CREATE INDEX idx_orders_user_created ON orders(user_id, created_at DESC);
 CREATE INDEX idx_order_items_order ON order_items(order_id);
@@ -532,6 +567,11 @@ CREATE INDEX idx_cart_items_cart ON cart_items(cart_id);
 
 -- Wishlist
 CREATE INDEX idx_wishlists_user ON wishlists(user_id);
+
+-- Back-in-stock notifications -- only the pending ones need to be scanned
+-- when a variant's stock_qty crosses 0 -> positive
+CREATE INDEX idx_stock_notify_variant_pending
+  ON stock_notify_requests(variant_id) WHERE notified_at IS NULL;
 
 -- Notifications
 CREATE INDEX idx_notifications_user_unread ON notifications(user_id) WHERE is_read = false;
@@ -613,6 +653,94 @@ Each product/variant can have multiple flags that affect display and behavior:
 | `stock_qty < threshold` | product_variants | Shows "Low Stock" badge |
 | `original_price ≠ current_price` | product_variants | Shows struck-through original, highlighted discounted price |
 | `is_active` on category/subcategory | categories/sub_categories | Hides entire section |
+
+---
+
+## 5a. Reviews & Ratings Architecture
+
+**Not built yet — designed here, scheduled to Phase 5 (Account & Discovery)**, since eligibility depends on `order_items` existing (Phase 3/4) and Phase 5 is where the "Discovery"/trust-building features live. Product-level only — no store-wide/seller rating in this design (kept out of scope deliberately to match the initial ask).
+
+Appears on the Product Detail page (Level 3), below "You Might Also Like" (`02_catalog_tab.md` §4).
+
+### Layout (adapt to Baker Ally's own brand colours — the screenshot referenced during design was Zomato-style and used as a structural reference only, not a colour/category source)
+
+```
+─── Reviews & Ratings ─────────────────────────────
+
+  4.6 ★★★★★                          410 reviews
+  (See all reviews →)
+
+  ┌────────┐  ┌────────┐  ┌────────┐  ┌────────┐
+  │  4.8   │  │  4.7   │  │  4.5   │  │  4.9   │   ← 4 category rings, live-averaged
+  └────────┘  └────────┘  └────────┘  └────────┘
+  Quality      Value       Packaging   Accuracy
+                                        to Listing
+
+  ┌──────────────────────────────────────────┐
+  │ [avatar] Priya S.                 ⭐ 5.0 │
+  │          3 months ago                    │
+  │          "Cream held up perfectly for    │
+  │          the whole tiering job."         │
+  │          [Quality] [Packaging]           │
+  └──────────────────────────────────────────┘  ← horizontal scroll, same
+  (more review cards scroll horizontally →)         card pattern as product tiles
+
+  [ See all reviews → ]
+
+  [ Add Review ]   ← only shown if the logged-in user is eligible (below)
+```
+
+### Eligibility — verified purchase only
+
+A user can review a product only if they have an `order_items` row for that product on an order with `status = 'delivered'` — not merely `confirmed`, since a fair review (especially of "Packaging Condition") requires the item to have actually arrived. One review per user per product (`UNIQUE(user_id, product_id)` on `product_reviews`), regardless of how many times they've reordered it.
+
+```
+GET /v1/products/:id/reviews/eligibility
+  → { canReview: boolean, reason?: 'not_purchased' | 'not_delivered' | 'already_reviewed' }
+  → Flutter only renders the "Add Review" button when canReview = true
+```
+
+### Rating categories
+
+Replaces the screenshot's restaurant-specific categories (Ambience, Music, Food, Service, Pricing, Hygiene) with ones relevant to a physical-goods bakery-supply store:
+
+| Category | What it measures |
+|---|---|
+| Product Quality | Did the ingredient/tool perform as expected? |
+| Value for Money | Fair pricing for what was received |
+| Packaging Condition | Arrived intact, no leaks/damage/melting |
+| Accuracy vs Description | Matched the listed size/description/photos |
+
+Each is an optional 1-5 sub-rating on the review form; `overall_rating` is the only required field. The 4 rings on product detail are the **live average** of each sub-rating across all reviews for that product (simple `AVG()` query, not precomputed — review volume per product is expected to be low; revisit with a materialised aggregate only if Phase 7 load testing shows it's needed, same reasoning as the `order_group_cache` precomputation note in §3).
+
+### Data & API
+
+| Action | Endpoint | Method | Notes |
+|---|---|---|---|
+| Load reviews + aggregate summary | `/v1/products/:id/reviews?page=&limit=` | GET | Returns `{ summary: { overallRating, reviewCount, categoryAverages }, reviews: [...] }` |
+| Check review eligibility | `/v1/products/:id/reviews/eligibility` | GET | Drives whether "Add Review" renders |
+| Submit a review | `/v1/products/:id/reviews` | POST | `{ orderItemId, overallRating, qualityRating?, valueRating?, packagingRating?, accuracyRating?, comment?, tags? }` — backend re-verifies eligibility server-side, never trusts the client |
+
+### Add Review Form
+
+Opens as a bottom sheet from the "Add Review" button:
+- Overall star rating (required, tap to select 1-5)
+- 4 optional category star ratings (Quality / Value / Packaging / Accuracy)
+- Free-text comment (optional)
+- Quick-select tag chips (optional, multi-select — e.g. "Great Quality", "Fast Delivery", "Damaged Packaging") for the small pill chips shown on each review card
+- Submit → `POST /v1/products/:id/reviews` → sheet closes, review list + rings refresh
+
+### Riverpod State
+
+```dart
+final productReviewsProvider = FutureProvider.family<ReviewSummary, String>((ref, productId) async {
+  return ref.read(reviewRepositoryProvider).getReviews(productId);
+});
+
+final reviewEligibilityProvider = FutureProvider.family<ReviewEligibility, String>((ref, productId) async {
+  return ref.read(reviewRepositoryProvider).getEligibility(productId);
+});
+```
 
 ---
 
@@ -759,6 +887,10 @@ confirmed  → POST /v1/orders called after successful payment:
                - HMAC signature verified
                - orders row UPDATED: status = 'confirmed', razorpay_payment_id stored
                - Unique constraint on razorpay_payment_id prevents double-confirmation
+               - product_variants.stock_qty decremented for each order_item,
+                 in the SAME transaction as the status update (see §18 risk
+                 register "Stock goes negative" — this is the mitigation,
+                 not just a note: decrement here, never at cart add)
                - Job enqueued to pgmq: Shiprocket + WhatsApp + FCM handled async
                - 201 returned to Flutter immediately
 
@@ -898,6 +1030,62 @@ On bell tap:
 ```
 
 30-second polling is sufficient for a notification bell — users don't need sub-second delivery for "your order shipped." FCM push handles the real-time delivery; in-app bell is supplementary.
+
+---
+
+## 12a. Back-in-Stock Email Notifications
+
+**Not built yet — designed here, scheduled per §17's open decisions.** Referenced from `02_catalog_tab.md` (the out-of-stock state on the product tile / Fixed Bottom CTA) and `03_order_again_tab.md` §7, which already called out a "Notify Me" button on out-of-stock tiles as a future feature without a design behind it. This section is that design.
+
+### The trigger point
+
+`product_variants.stock_qty` is the only signal — "back in stock" means it crossed from `0` (or below) to a positive value. Today the sole write path for that column is the Phase 6 admin endpoint `PATCH /v1/admin/variants/:id/stock`; Phase 3's order-confirm flow (§9) will add a second write path (decrementing stock on order confirmation, which only ever *lowers* the value so it can't itself trigger a restock notification, but does mean stock_qty is no longer single-writer).
+
+**Detection should be a Postgres trigger, not an application-level before/after check in each endpoint** — `AFTER UPDATE OF stock_qty ON product_variants WHEN OLD.stock_qty <= 0 AND NEW.stock_qty > 0`, so the transition is caught regardless of which code path caused it (admin stock edit, future bulk import, etc.) rather than requiring every future writer to remember to duplicate the check.
+
+### Data model
+
+```sql
+stock_notify_requests
+  id              UUID PRIMARY KEY
+  user_id         UUID FK → users.id NOT NULL
+  variant_id      UUID FK → product_variants.id NOT NULL
+  notified_at     TIMESTAMPTZ NULL        -- NULL = pending; set once the email sends
+  created_at      TIMESTAMPTZ DEFAULT now()
+  UNIQUE (user_id, variant_id)
+```
+
+One row = one user's standing request to be told when one variant restocks. `notified_at IS NULL` is "still waiting"; once sent, the row is kept (not deleted) as a record, and a fresh "Notify Me" tap after that point should be allowed to re-arm it (`UPDATE ... SET notified_at = NULL` rather than a second insert, since the unique constraint is on `(user_id, variant_id)`).
+
+### Flow
+
+```
+Customer taps "Notify Me" on an out-of-stock variant
+  → requires login (same gate as the wishlist heart, 02_catalog_tab.md §6)
+  → POST /v1/stock-notify { variantId }
+  → upserts a stock_notify_requests row, notified_at = NULL
+
+Admin restocks the variant (Phase 6 stock edit)
+  → PATCH /v1/admin/variants/:id/stock updates product_variants.stock_qty
+  → Postgres trigger fires (0 -> positive), enqueues a job to a new
+    pgmq queue 'stock_notify_events' with { variantId }
+    -- reuses the exact queue+worker pattern Phase 4 builds for
+    -- order_events (Supabase Cron worker, every 30s), rather than a
+    -- second bespoke background-job mechanism
+
+Worker (extends the Phase 4 cron worker)
+  → reads pending stock_notify_requests for that variant_id
+    (idx_stock_notify_variant_pending makes this cheap)
+  → sends one email per request via [email provider -- not yet chosen, see §17]
+  → stamps notified_at = now() on each row sent
+  → (optional) also inserts a row into `notifications`
+    (channel = 'email', type = 'back_in_stock') so it shows in the
+    in-app bell too, reusing the existing table rather than a parallel one
+```
+
+### What's still an open decision
+
+There is currently **no transactional email provider** wired into the backend. `backend_stack.md`'s only two outbound channels are FCM (push) and Interakt (WhatsApp) — Supabase's built-in email sending is scoped to Auth (OTP codes only), not something application code can call for arbitrary emails. A provider (e.g. Resend, Postmark, SendGrid) needs to be chosen and its secret added alongside `UPSTASH_REDIS_REST_URL` / `SENTRY_DSN` in Edge Function secrets before this can actually send anything. See §17 "Still Open."
 
 ---
 
@@ -1062,6 +1250,7 @@ All list endpoints paginate with `?page=1&limit=20`. Never return unbounded list
 |---|---|---|
 | A | Porter integration details | Shipping cost calculation, free shipping threshold |
 | B | Brownie points earn/redeem rules | brownie_points tab build |
+| C | Transactional email provider (Resend / Postmark / SendGrid / other)? | Back-in-stock emails (§12a) — the design and `stock_notify_requests` table are ready, but nothing can actually send until a provider is picked and its secret is added |
 
 ---
 
@@ -1498,6 +1687,9 @@ Syncs:
 | orders → order_items | One-to-many | Snapshot at order time |
 | orders → shipments | One-to-one | |
 | orders → discounts | Many-to-one (optional) | |
+| product_variants → stock_notify_requests | One-to-many | Not diagrammed above (added after the ERD was drawn) — see §12a |
+| products → product_reviews | One-to-many | Not diagrammed above — see §5a |
+| order_items → product_reviews | One-to-one (optional) | The specific purchase that proves eligibility; one review per (user, product) via the UNIQUE constraint, not per order_item |
 
 ---
 
