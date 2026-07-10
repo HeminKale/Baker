@@ -200,7 +200,7 @@ Same dimensions as catalog product tile. Identical add-to-cart interaction (butt
 Out-of-stock items:
 - Still shown (user may want to wait for restock)
 - "Out of Stock" badge overlaid on image
-- "Add to Cart" button replaced with "Notify Me" button (future feature — placeholder for now)
+- "Add to Cart" button replaced with "Notify Me" button — designed in `00_common_architecture.md` §12a (Back-in-Stock Email Notifications: `stock_notify_requests` table, `POST /v1/stock-notify`, restock-triggered email via a pgmq worker). Not built yet — blocked on choosing an email provider (§17 open decision C).
 
 ---
 

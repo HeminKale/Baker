@@ -279,11 +279,34 @@ Profile Overlay
   🚪  Log Out
 ```
 
+Also new this milestone: **product reviews & ratings**, so customers can see what other bakers thought before buying.
+
+```
+Product Detail — Reviews Section
+
+  4.6 ★★★★★                      410 reviews
+
+  Quality  Value   Packaging  Accuracy
+   4.8      4.7      4.5        4.9
+
+  ┌──────────────────────────────────────┐
+  │ [avatar] Priya S.            ⭐ 5.0  │
+  │ 3 months ago                         │
+  │ "Cream held up perfectly for the     │
+  │  whole tiering job."                 │
+  │ [Quality] [Packaging]                │
+  └──────────────────────────────────────┘
+
+  [ Add Review ]  ← only for customers who
+                     actually received the order
+```
+
 **What this enables for the business:**
 - Customers can reorder their usual basket in 2 taps — drives repeat purchases
 - Invoice PDFs available for customers who need them for their business accounts
 - Wishlist keeps customers engaged and coming back
 - Saved addresses make repeat checkout faster
+- Reviews build trust for new customers browsing a product for the first time — and only customers who actually received the item can post one, so ratings can't be gamed
 
 **What you can demo at this milestone:**
 - Tap "Add All" on a Frequently Bought Together group → all items added to cart
@@ -291,6 +314,7 @@ Profile Overlay
 - View and download an invoice PDF
 - Manage multiple saved addresses
 - View wishlist and add saved items to cart
+- Leave a review + star rating on a delivered order's product, see it appear on that product's page
 
 ---
 

@@ -246,6 +246,12 @@ Full screen. Opened by tapping any product tile. Has a back button to return to 
 │  ─── You Might Also Like ──────────────────────     │
 │  [ tile ][ tile ][ tile ]  ← horizontal scroll       │
 │                                                       │
+│  ─── Reviews & Ratings ─────────────────────────     │
+│  4.6 ★★★★★           410 reviews    (See all →)      │
+│  [ring][ring][ring][ring]  Quality/Value/Pkg/Accuracy│
+│  [ review card ][ review card ]  ← horizontal scroll │
+│  [ Add Review ]  ← only if verified-purchase eligible│
+│                                                       │
 │  (scroll padding for fixed CTA)                       │
 └─────────────────────────────────────────────────────┘
 │  ┌───────────────────────────────────────────────┐  │
@@ -275,10 +281,10 @@ Full screen. Opened by tapping any product tile. Has a back button to return to 
 ```
 Idle:          [  + Add to Cart  ·  ₹95  ]
 In cart:       [  − 1 +  ·  ₹95  ]          ← stepper replaces button
-Out of stock:  [  Out of Stock  ]            ← grey, disabled
+Out of stock:  [  Notify Me  ]               ← see 00_common_architecture.md §12a
 ```
 
-Same button → stepper transition as catalog tile (AnimatedSwitcher).
+Same button → stepper transition as catalog tile (AnimatedSwitcher). The out-of-stock state is currently built as a plain disabled "Out of Stock" button (Milestone 2) — swapping it for a functional "Notify Me" button is designed but not yet built, blocked on choosing an email provider (§17 open decision C in `00_common_architecture.md`).
 
 ### Wishlist Heart (top right of product name)
 
@@ -292,6 +298,10 @@ Same button → stepper transition as catalog tile (AnimatedSwitcher).
 - Products from same subcategory, excluding current product
 - Same horizontal scroll tile row as checkout recommendations
 - API: `GET /v1/products/:id/related`
+
+### Reviews & Ratings (below You Might Also Like)
+
+**Not built yet — designed, scheduled to Phase 5.** Full architecture (DB table, eligibility rules, category definitions, API, Add Review form, Riverpod state) lives in `00_common_architecture.md` §5a — this page only owns the layout slot. Product-level only, verified-purchase gated (must have a `delivered` order for this product), one review per user per product.
 
 ---
 
@@ -438,6 +448,9 @@ Products still shown with "Out of Stock" badge — not hidden. Bakers may want t
 | Toggle wishlist | `POST /v1/wishlist { variantId }` | Add |
 | Toggle wishlist | `DELETE /v1/wishlist/:variantId` | Remove |
 | Search | `GET /v1/products?q=:term` | Full-text search across name + description |
+| Load reviews + rating summary | `GET /v1/products/:id/reviews?page=&limit=` | Not built yet — Phase 5, see `00_common_architecture.md` §5a |
+| Check review eligibility | `GET /v1/products/:id/reviews/eligibility` | Not built yet — Phase 5 |
+| Submit a review | `POST /v1/products/:id/reviews` | Not built yet — Phase 5, verified-purchase gated |
 
 ### Caching Strategy
 
@@ -486,6 +499,11 @@ final catalogFilterProvider = StateProvider.family<CatalogFilter, String>(
 final wishlistIdsProvider = StateNotifierProvider<WishlistNotifier, Set<String>>((ref) {
   return WishlistNotifier(ref.read(wishlistRepositoryProvider));
 });
+
+// Reviews & ratings — not built yet (Phase 5), full definition in
+// 00_common_architecture.md §5a:
+//   productReviewsProvider     FutureProvider.family<ReviewSummary, String>
+//   reviewEligibilityProvider  FutureProvider.family<ReviewEligibility, String>
 ```
 
 ---

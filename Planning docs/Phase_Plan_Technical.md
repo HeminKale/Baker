@@ -3,6 +3,14 @@
 > Purpose: What to build, in what order, with what acceptance criteria
 > Last updated: July 2026
 
+**Milestone 1 Update (July 9, 2026):**
+- **PostHog Analytics, workmanager, speech_to_text removed** from Phase 1 due to Kotlin 2.0 incompatibility
+- **Firebase Analytics** is now the sole analytics provider (already in dependencies, no Kotlin issues)
+- **workmanager** (background tasks) deferred to Phase 5 — alternatives: `flutter_background_service`, `background_fetch`
+- **speech_to_text** (voice search) deferred to Phase 5 — alternatives: `google_speech_api`, native platform APIs
+- Plugins can be re-evaluated in Phase 5+ when compatibility improves or alternatives are assessed
+- See Milestone 1 manual steps.md and Development vs Production Checklist.md for details
+
 ---
 
 ## Overview
@@ -110,6 +118,37 @@ Each phase produces working, testable code — not partial features. A phase is 
 - On login: `POST /v1/auth/me` called to hydrate `authProvider` + `profileProvider`
 - Logout: clears JWT, Drift, navigates to `/login`
 - GoRouter `redirect` guard: unauthenticated → `/login`
+
+**Email OTP (added during Milestone 1 testing, July 2026):**
+- Second sign-in path alongside Google — no Google Cloud OAuth setup required
+- Uses Supabase's built-in `signInWithOtp` / `verifyOTP(type: OtpType.email)` — sends a 6-digit code, not a magic link
+- Login screen: "Continue with Google" button, divider, "Continue with Email" button → pushes `EmailOtpScreen`
+- `EmailOtpScreen`: email input → Send Code → 6-digit code input → Verify Code → session created, same `onAuthStateChange` flow as Google
+- Files: `lib/features/auth/data/auth_repository.dart` (`sendEmailOtp`, `verifyEmailOtp`), `lib/features/auth/presentation/auth_provider.dart`, `lib/features/auth/presentation/email_otp_screen.dart`
+
+**⏳ PENDING: Email Template Customization (Supabase Pro plan feature)**
+- By default, Supabase sends a **magic link** email (subject "Your sign-in link"). The Flutter code is ready to receive a 6-digit code, but the email needs to be customized to display it.
+- **Manual step (after upgrading Supabase to Pro or setting up custom SMTP):**
+  1. Supabase Dashboard → **Authentication** → **Email Templates** → **"Magic link or OTP"**
+  2. Edit the **Body** to include `{{ .Token }}` instead of the link, e.g.:
+     ```html
+     <h2>Your login code</h2>
+     <p>Please enter this code to sign in: {{ .Token }}</p>
+     <p>This code expires in 10 minutes.</p>
+     ```
+  3. Save → Test by tapping "Continue with Email" on the app
+- Once email template is customized, email OTP flow is complete: user receives 6-digit code in email → enters it in app → signed in
+- **Current status:** Code complete, Supabase dashboard configuration pending
+
+**Google OAuth Deep Link Configuration:**
+- Android deep link: `com.chefsandbakers.app://login-callback`
+- Deep link must be registered in AndroidManifest.xml (already configured in code)
+- **CRITICAL:** Redirect URL must be added to Supabase Dashboard → Authentication → URL Configuration:
+  1. Go to Supabase project → **Authentication** → **URL Configuration**
+  2. Add Redirect URL: `com.chefsandbakers.app://login-callback`
+  3. Click **Save**
+  - Without this step, Google OAuth callback will fail with "This site cannot be reached" error in Chrome
+- When testing on physical device after USB connection, ensure the redirect URL is already registered in Supabase before tapping "Continue with Google"
 
 #### 1.5 User Profile API
 - `GET /v1/users/me` — returns user + role
@@ -227,6 +266,10 @@ POST   /v1/orders/:id/confirm
   → verifies HMAC signature (razorpayOrderId + razorpayPaymentId)
   → updates order status to 'confirmed'
   → stores razorpay_payment_id (UNIQUE — prevents duplicate confirmation)
+  → decrements product_variants.stock_qty for each order_item,
+    in the SAME DB transaction as the status update — not at cart add,
+    not at checkout creation (see 00_common_architecture.md §9 and §18
+    risk register: "Stock goes negative (oversell)")
   → enqueues job to pgmq 'order_events' queue
   → returns 201 immediately
 ```
@@ -274,6 +317,7 @@ POST /v1/webhooks/razorpay
 - [ ] Razorpay payment sheet opens with correct amount
 - [ ] Successful payment creates `confirmed` order in DB
 - [ ] `razorpay_payment_id` UNIQUE constraint rejects duplicate confirmations
+- [ ] `stock_qty` decrements atomically on order confirmation (same transaction as the status update) — two concurrent checkouts for the last unit of a variant cannot both succeed
 - [ ] Webhook dedup prevents double-processing of Razorpay events
 - [ ] Discount code applies correctly — bill updates live
 - [ ] Cart cleared after successful order
@@ -447,6 +491,26 @@ PDF generated server-side by Edge Function (using a PDF library), stored in Supa
 All profile overlay screens functional:
 - Your Orders, Order Status, Wishlist, Receipts, Addresses, Contact Us, Help, Log Out
 
+#### 5.8 Product Reviews & Ratings
+Full design in `00_common_architecture.md` §5a — added to the plan after Milestone 2's post-build validation surfaced it as an undesigned placeholder in `03_order_again_tab.md`. Product-level only, verified-purchase gated.
+
+New table:
+```
+product_reviews   — product_id, user_id, order_item_id (proves purchase),
+                    overall_rating (required, 1-5) + 4 optional category
+                    sub-ratings (quality/value/packaging/accuracy),
+                    comment, tags[], UNIQUE(user_id, product_id)
+```
+
+New endpoints:
+```
+GET  /v1/products/:id/reviews?page=&limit=   — paginated reviews + live-averaged rating summary
+GET  /v1/products/:id/reviews/eligibility    — { canReview, reason? } — must have a DELIVERED order for this product
+POST /v1/products/:id/reviews                — server re-verifies eligibility, never trusts the client
+```
+
+Flutter: Reviews & Ratings section on Product Detail (below You Might Also Like) — overall score + review count, 4 category rating rings, horizontal-scroll review cards (avatar, name, star rating, date, comment, tag chips), "See all reviews," and an "Add Review" bottom sheet (star pickers + comment + tag chips) shown only when eligible.
+
 ### Acceptance Criteria
 - [ ] Avatar upload stores webp in Supabase Storage, URL updates in profile card
 - [ ] Wishlist persists across devices (DB-backed, not local-only)
@@ -455,6 +519,9 @@ All profile overlay screens functional:
 - [ ] "Add all to cart" adds at qty 1, sheet closes, cart badge updates
 - [ ] Previously Bought shows last-bought date, infinite scroll works
 - [ ] Invoice PDF accessible from Receipts screen
+- [ ] "Add Review" only renders for users with a delivered order for that product — never for non-purchasers
+- [ ] A user cannot submit a second review for the same product (server-enforced, not just UI-hidden)
+- [ ] Product detail's rating rings update live after a new review is submitted
 
 ---
 
