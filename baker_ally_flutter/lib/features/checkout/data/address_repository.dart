@@ -5,8 +5,10 @@ import '../../../shared/local_db/app_database.dart';
 import 'models/address.dart';
 
 /// Network-first with Drift fallback (same shape as CatalogRepository), so the
-/// checkout address selector still has data offline. List + add only for
-/// Milestone 3; edit/delete land in Phase 5.
+/// checkout address selector still has data offline. List + add landed in
+/// Milestone 3; update/delete are Milestone 5 (06_profile_and_account.md
+/// Delivery Addresses screen), reusing this same repository rather than
+/// duplicating it under features/addresses.
 class AddressRepository {
   AddressRepository({required Dio dio, required AppDatabase db}) : _dio = dio, _db = db;
 
@@ -60,6 +62,35 @@ class AddressRepository {
       },
     );
     return Address.fromJson(response.data!['data'] as Map<String, dynamic>);
+  }
+
+  Future<Address> updateAddress(
+    String id, {
+    String? label,
+    String? line1,
+    String? line2,
+    String? city,
+    String? state,
+    String? pincode,
+    bool? isDefault,
+  }) async {
+    final response = await _dio.patch<Map<String, dynamic>>(
+      '/v1/addresses/$id',
+      data: {
+        if (label != null) 'label': label,
+        if (line1 != null) 'line1': line1,
+        if (line2 != null) 'line2': line2,
+        if (city != null) 'city': city,
+        if (state != null) 'state': state,
+        if (pincode != null) 'pincode': pincode,
+        if (isDefault != null) 'isDefault': isDefault,
+      },
+    );
+    return Address.fromJson(response.data!['data'] as Map<String, dynamic>);
+  }
+
+  Future<void> deleteAddress(String id) async {
+    await _dio.delete<void>('/v1/addresses/$id');
   }
 
   Future<void> _cache(List<Address> addresses) async {

@@ -47,6 +47,30 @@ class WishlistRepository {
   /// Caches locally first (instant heart fill), then syncs to server.
   /// Reverts the local cache and rethrows if the server call fails, so the
   /// caller (WishlistNotifier) can revert its optimistic UI state too.
+  /// Full display data for the `/wishlist` grid screen (Milestone 5) --
+  /// network-first with the same Drift fallback shape as AddressRepository,
+  /// distinct from the lightweight id-only `refresh()`/`getCachedVariantIds()`
+  /// used for the O(1) heart lookup.
+  Future<List<WishlistItem>> getItems() async {
+    try {
+      final response = await _dio.get<Map<String, dynamic>>('/v1/wishlist');
+      return (response.data!['data'] as List).map((e) => WishlistItem.fromJson(e as Map<String, dynamic>)).toList();
+    } on DioException {
+      final cached = await _db.select(_db.cachedWishlistItems).get();
+      if (cached.isEmpty) rethrow;
+      return cached
+          .map((r) => WishlistItem(
+                variantId: r.variantId,
+                productId: r.productId,
+                productName: r.productName,
+                variantName: r.variantName,
+                currentPrice: r.currentPrice,
+                imageUrl: r.imageUrl,
+              ))
+          .toList();
+    }
+  }
+
   Future<void> add({
     required String variantId,
     required String productId,

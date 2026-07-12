@@ -115,6 +115,27 @@ class CachedAddresses extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Cached order history so the default "Your Orders" list has data offline
+/// (06_profile_and_account.md). Only the unfiltered page-1 list is cached --
+/// Order Status (active filter), pagination, and Receipts (paid filter) are
+/// network-only (Milestone 5 plan: "No Drift caching for ... Receipts").
+/// Order detail is deliberately NOT cached, mirroring product detail's
+/// existing not-cached precedent (00_common_architecture.md §15).
+class CachedOrders extends Table {
+  TextColumn get id => text()();
+  TextColumn get status => text()();
+  IntColumn get subtotal => integer()();
+  IntColumn get discountValue => integer()();
+  IntColumn get shippingCost => integer()();
+  IntColumn get total => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+  IntColumn get itemCount => integer()();
+  TextColumn get thumbnailUrl => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   AppSettings,
   CachedCategories,
@@ -123,12 +144,13 @@ class CachedAddresses extends Table {
   CachedWishlistItems,
   CachedCartItems,
   CachedAddresses,
+  CachedOrders,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -143,6 +165,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(cachedCartItems);
             await m.createTable(cachedAddresses);
+          }
+          if (from < 4) {
+            await m.createTable(cachedOrders);
           }
         },
       );

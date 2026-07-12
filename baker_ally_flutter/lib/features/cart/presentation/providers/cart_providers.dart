@@ -193,6 +193,16 @@ class CartNotifier extends StateNotifier<CartState> {
     }
   }
 
+  /// Order Again's "Add Selected Items to Cart" (Milestone 5). Server-only --
+  /// Order Again's data requires past orders, so guests never reach it and
+  /// no local/optimistic path is needed here. Throws on failure; the caller
+  /// (GroupDetailSheet) shows the error.
+  Future<void> addBatch(List<({String variantId, int quantity})> items) async {
+    if (items.isEmpty) return;
+    final server = await _repository.addItemsBatch(items);
+    state = state.copyWith(items: server);
+  }
+
   /// Pulls the authoritative server cart -- used after a PRICE_CHANGED response
   /// so the bill reflects updated prices before the user retries.
   Future<void> refresh() async {

@@ -87,6 +87,10 @@ dependencies:
 
   # Voice search (speech_to_text removed — deferred to Phase 5 due to Kotlin 2.0 incompatibility)
 
+  # Milestone 5 -- avatar selection (Edit Profile) + opening invoice/wa.me/mailto links
+  image_picker: ^1.1.2
+  url_launcher: ^6.3.1
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

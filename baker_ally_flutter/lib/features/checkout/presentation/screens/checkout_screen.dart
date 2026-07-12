@@ -13,6 +13,17 @@ import '../widgets/address_selector_sheet.dart';
 import '../widgets/cart_item_row.dart';
 import '../widgets/payment_mode_sheet.dart';
 
+String _paymentMethodLabel(PaymentMethod method) {
+  switch (method) {
+    case PaymentMethod.upi:
+      return 'UPI';
+    case PaymentMethod.card:
+      return 'Card';
+    case PaymentMethod.netbanking:
+      return 'Netbanking';
+  }
+}
+
 /// The Cart tab IS the checkout page (05_cart_and_checkout.md §3 -- no separate
 /// cart-review screen). Single scrollable page + fixed bottom CTA. Owns the
 /// Razorpay instance for the whole checkout lifecycle.
@@ -148,7 +159,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ref.read(appliedDiscountProvider.notifier).state = null;
       _setStatus(CheckoutStatus.success);
       if (mounted) {
-        context.go('/checkout/confirmation', extra: {'orderId': _pendingOrderId, 'total': _pendingTotal});
+        context.go('/checkout/confirmation', extra: {
+          'orderId': _pendingOrderId,
+          'total': _pendingTotal,
+          'paymentMethod': _paymentMethodLabel(ref.read(selectedPaymentMethodProvider)),
+        });
       }
     } catch (e) {
       _setStatus(CheckoutStatus.failed);
@@ -427,17 +442,6 @@ class _CtaBar extends ConsumerWidget {
         status == CheckoutStatus.openingRazorpay ||
         status == CheckoutStatus.confirming;
 
-    String paymentLabel() {
-      switch (payment) {
-        case PaymentMethod.upi:
-          return 'UPI';
-        case PaymentMethod.card:
-          return 'Card';
-        case PaymentMethod.netbanking:
-          return 'Netbanking';
-      }
-    }
-
     return Material(
       elevation: 8,
       child: SafeArea(
@@ -469,7 +473,7 @@ class _CtaBar extends ConsumerWidget {
                       children: [
                         const Icon(Icons.payment, size: 18),
                         const SizedBox(width: 4),
-                        Text(paymentLabel()),
+                        Text(_paymentMethodLabel(payment)),
                         const Icon(Icons.keyboard_arrow_up, size: 18),
                       ],
                     ),

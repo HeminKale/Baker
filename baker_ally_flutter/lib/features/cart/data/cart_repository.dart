@@ -121,6 +121,19 @@ class CartRepository {
     return items;
   }
 
+  /// Order Again's "Add Selected Items to Cart" (Milestone 5) -- hits Phase
+  /// 1's `POST /cart/items/batch`, one round trip for the whole selection
+  /// instead of N calls to `addItemToServer`.
+  Future<List<CartItem>> addItemsBatch(List<({String variantId, int quantity})> items) async {
+    final response = await _dio.post<Map<String, dynamic>>(
+      '/v1/cart/items/batch',
+      data: {'items': items.map((i) => {'variantId': i.variantId, 'quantity': i.quantity}).toList()},
+    );
+    final parsed = _parseCart(response);
+    await saveLocalCart(parsed);
+    return parsed;
+  }
+
   Future<void> clearServerCart() async {
     await _dio.delete<Map<String, dynamic>>('/v1/cart');
     await clearLocalCart();

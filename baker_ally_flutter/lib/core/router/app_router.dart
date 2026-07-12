@@ -4,21 +4,33 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../features/addresses/presentation/screens/address_form_screen.dart';
+import '../../features/addresses/presentation/screens/address_list_screen.dart';
 import '../../features/auth/presentation/auth_provider.dart';
 import '../../features/auth/presentation/login_screen.dart';
 import '../../features/catalog/presentation/screens/catalog_screen.dart';
 import '../../features/catalog/presentation/screens/product_detail_screen.dart';
 import '../../features/catalog/presentation/screens/subcategory_products_screen.dart';
+import '../../features/checkout/data/models/address.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/checkout/presentation/screens/order_confirmation_screen.dart';
+import '../../features/order_again/presentation/screens/order_again_screen.dart';
+import '../../features/orders/presentation/screens/order_detail_screen.dart';
+import '../../features/orders/presentation/screens/order_history_screen.dart';
+import '../../features/profile/presentation/screens/contact_screen.dart';
+import '../../features/profile/presentation/screens/edit_profile_screen.dart';
+import '../../features/profile/presentation/screens/help_screen.dart';
+import '../../features/profile/presentation/screens/recipes_screen.dart';
+import '../../features/receipts/presentation/screens/receipts_screen.dart';
+import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
 import '../../shared/widgets/app_shell.dart';
 import '../../shared/widgets/placeholder_screen.dart';
 
 /// Guests can view the cart and add items freely (05_cart_and_checkout.md
 /// §2/§3) -- login is gated at the checkout "Proceed" action, not on /cart
-/// itself. Order history/addresses screens (Phase 5) will add their own
-/// protected paths here.
-const _protectedPaths = <String>[];
+/// itself. Milestone 5 adds account/discovery screens here as they're built;
+/// see 00_common_architecture.md line 192 for the full intended guard list.
+const _protectedPaths = <String>['/profile/edit', '/addresses', '/wishlist', '/orders', '/receipts'];
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authNotifier = ref.watch(authProvider.notifier);
@@ -43,6 +55,41 @@ final routerProvider = Provider<GoRouter>((ref) {
     },
     routes: [
       GoRoute(path: '/login', builder: (context, state) => const LoginScreen()),
+      // Full-screen, outside the bottom-nav shell -- Profile Overlay pushes
+      // here (06_profile_and_account.md: "a separate full screen, not nested
+      // in the sheet").
+      GoRoute(path: '/profile/edit', builder: (context, state) => const EditProfileScreen()),
+      // Delivery Addresses -- pushed from the Profile Overlay menu, full
+      // screens outside the bottom-nav shell (same treatment as
+      // /profile/edit). /addresses/:id/edit gets its Address via `extra`
+      // (list screen already has it from GET /addresses) since there's no
+      // GET /addresses/:id.
+      GoRoute(path: '/addresses', builder: (context, state) => const AddressListScreen()),
+      GoRoute(path: '/addresses/new', builder: (context, state) => const AddressFormScreen()),
+      GoRoute(
+        path: '/addresses/:id/edit',
+        builder: (context, state) => AddressFormScreen(existing: state.extra as Address?),
+      ),
+      GoRoute(path: '/wishlist', builder: (context, state) => const WishlistScreen()),
+      // "Your Orders" and "Order Status" share this route -- the Profile
+      // Overlay's Order Status tile pushes with extra {'status': 'active'}.
+      GoRoute(
+        path: '/orders',
+        builder: (context, state) {
+          final extra = state.extra as Map<String, dynamic>?;
+          return OrderHistoryScreen(status: extra?['status'] as String?);
+        },
+      ),
+      GoRoute(
+        path: '/orders/:orderId',
+        builder: (context, state) => OrderDetailScreen(orderId: state.pathParameters['orderId']!),
+      ),
+      GoRoute(path: '/receipts', builder: (context, state) => const ReceiptsScreen()),
+      // Generic support content -- unprotected (06_profile_and_account.md /
+      // Milestone 5 plan: "/recipes, /contact, /help also unprotected").
+      GoRoute(path: '/recipes', builder: (context, state) => const RecipesScreen()),
+      GoRoute(path: '/contact', builder: (context, state) => const ContactScreen()),
+      GoRoute(path: '/help', builder: (context, state) => const HelpScreen()),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navigationShell) =>
             AppShell(navigationShell: navigationShell),
@@ -69,7 +116,7 @@ final routerProvider = Provider<GoRouter>((ref) {
             ),
           ]),
           StatefulShellBranch(routes: [
-            GoRoute(path: '/order-again', builder: (c, s) => const PlaceholderScreen(title: 'Order Again')),
+            GoRoute(path: '/order-again', builder: (c, s) => const OrderAgainScreen()),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/brownie-points', builder: (c, s) => const PlaceholderScreen(title: 'Brownie Points')),
@@ -86,6 +133,7 @@ final routerProvider = Provider<GoRouter>((ref) {
                 return OrderConfirmationScreen(
                   orderId: extra?['orderId'] as String?,
                   total: extra?['total'] as int?,
+                  paymentMethodLabel: extra?['paymentMethod'] as String?,
                 );
               },
             ),
