@@ -37,9 +37,9 @@ class OrderConfirmationScreen extends StatelessWidget {
                   padding: const EdgeInsets.all(16),
                   child: Row(
                     children: [
-                      const Icon(Icons.chat_outlined),
+                      const Icon(Icons.notifications_outlined),
                       const SizedBox(width: 8),
-                      Expanded(child: Text("You'll receive a WhatsApp confirmation shortly.")),
+                      Expanded(child: Text("You'll get an order update here and a push notification shortly.")),
                     ],
                   ),
                 ),

@@ -135,8 +135,8 @@ POST /orders/:id/confirm (Razorpay + Stock)
                       │   POST https://api.porter.in/...
                       │   (create shipment)
                       │
-                      └─ Send WhatsApp + FCM notifications
-                         (Interakt + Firebase Admin)
+                      └─ Send in-app + FCM notifications
+                         (notifications table + Firebase Admin)
 
 KEY: Razorpay decision is made in Step 1 + Step 2 (payment layer).
      Shipping provider choice is made in the background job (fulfillment layer).

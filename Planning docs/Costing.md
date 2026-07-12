@@ -16,7 +16,6 @@
 | Avg order value | ₹600 |
 | Monthly GMV | ₹90,00,000 (~₹90 lakhs) |
 | Product images in storage | ~2,000 images, ~4 GB |
-| WhatsApp messages/month | ~60,000 (4 per order) |
 | Emails/month | ~20,000 |
 | Push notifications/month | ~60,000 |
 
@@ -129,36 +128,11 @@ This is passed on to the customer as delivery charges or absorbed in product mar
 
 ---
 
-## 6. Interakt (WhatsApp Business API)
+## 6. ~~Interakt (WhatsApp Business API)~~ — Removed (2026-07-12)
 
-**Plan: Growth — ₹2,999/month**
+**Decision: no WhatsApp Business API integration.** Order-status communication is in-app notifications (§ Notification Architecture) + Firebase push (§7) only. Shiprocket sends its own WhatsApp/SMS delivery updates directly to the customer under its own account — that's the carrier's cost and integration, not Baker Ally's.
 
-| Plan | Monthly cost | Conversations included |
-|---|---|---|
-| Starter | ₹999/month | 1,000 conversations |
-| Growth | ₹2,999/month | 5,000 conversations |
-| Scale | ₹6,999/month | 15,000 conversations |
-
-**What is a "conversation"?**
-WhatsApp bills per 24-hour conversation window, not per message. One order = 4 messages (confirmed, shipped, out for delivery, delivered) = likely 2–3 conversation windows = ~2 billable units.
-
-**Estimate at 15,000 orders/month:**
-
-| Metric | Value |
-|---|---|
-| Orders/month | 15,000 |
-| Avg conversations per order | ~2 |
-| Total conversations | ~30,000 |
-
-At 30,000 conversations, Scale plan (₹6,999) + overages apply. Budget ₹8,000–10,000/month at full scale.
-
-| Stage | Orders/month | Interakt plan | Cost |
-|---|---|---|---|
-| MVP | < 500 | Starter | ₹999 |
-| Growth | 500–2,500 | Growth | ₹2,999 |
-| Scale | > 2,500 | Scale | ₹6,999 |
-
-**Monthly cost at full scale: ~₹8,000–10,000**
+**Monthly cost: ₹0** (was budgeted ~₹8,000–10,000/month at full scale — fully avoided)
 
 ---
 
@@ -181,7 +155,7 @@ FCM has no cost regardless of volume. Sending 60,000 push notifications/month co
 
 **Plan: Free — always**
 
-Resend is configured as Supabase Auth's SMTP provider — no custom email code. Only sends OTPs, magic links, and password resets. All order updates go via WhatsApp and push, not email.
+Resend is configured as Supabase Auth's SMTP provider — no custom email code. Only sends OTPs, magic links, and password resets. All order updates go via in-app + push, not email.
 
 | Plan | Cost | Emails/month |
 |---|---|---|
@@ -289,7 +263,6 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 | Railway (replaced by Edge Functions) | ₹0 |
 | Vercel | ₹0 |
 | Razorpay | ~₹1,200 (est.) |
-| Interakt (Starter) | ₹999 |
 | Firebase | ₹0 |
 | Resend (Free — Supabase SMTP) | ₹0 |
 | Upstash Redis (rate limiting) | ₹0 |
@@ -297,7 +270,7 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 | Codemagic (Free tier) | ₹0 |
 | Apple Developer | ₹700 |
 | PostHog | ₹0 |
-| **Total** | **~₹4,999/month** |
+| **Total** | **~₹4,000/month** |
 
 ---
 
@@ -309,7 +282,6 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 | Railway (replaced by Edge Functions) | ₹0 |
 | Vercel | ₹0 |
 | Razorpay | ~₹12,000 |
-| Interakt (Growth) | ₹2,999 (can be avoided)|
 | Firebase | ₹0 |
 | Resend (Free — Supabase SMTP) | ₹0 |
 | Upstash Redis (rate limiting) | ₹0 |
@@ -317,7 +289,7 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 | Codemagic | ₹5,040 (Can be reduced to ₹1500)|
 | Apple Developer | ₹700 |
 | PostHog | ₹0 |
-| **Total** | **~between ₹14,000/month and ₹22,839/month** |
+| **Total** | **~between ₹11,000/month and ₹19,840/month** |
 
 ---
 
@@ -329,7 +301,6 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 | Railway (replaced by Edge Functions)| ₹0  |
 | Vercel | ₹1,680 |
 | Razorpay | ~₹36,000 |
-| Interakt (Scale) | ₹9,000 (can be avoided)|
 | Firebase | ₹0 |
 | Resend (Free — Supabase SMTP) | ₹0 |
 | Upstash Redis (rate limiting) | ₹0 |
@@ -337,7 +308,7 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 | Codemagic | ₹5,040 (can be reduced to ₹1500)|
 | Apple Developer | ₹700 |
 | PostHog | ₹0 |
-| **Total** | **~ between ₹40,000/month and ₹54,520/month** |
+| **Total** | **~ between ₹31,000/month and ₹45,520/month** |
 
 > Note: Razorpay fees (₹36,000) are the dominant cost at scale and are a % of GMV — not a fixed infrastructure cost. They scale with revenue, not against it.
 
@@ -351,7 +322,6 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 |---|---|
 | Apple Developer Account | $99 (₹8,316) |
 | Google Play Console | $25 (₹2,100) |
-| WhatsApp Business API approval | ₹0 (via Interakt) |
 | Domain name (bakerally.in) | ~₹1,000/year |
 | **Total one-time** | **~₹11,416** |
 
@@ -360,9 +330,9 @@ Baker Ally at 10k MAU will generate well under 1M events/month.
 
 | Stage | Monthly GMV | Infra cost | Razorpay | Total cost | % of GMV |
 |---|---|---|---|---|---|
-| MVP | ₹3,00,000 | ₹3,799 | ₹1,200 | ₹4,999 | 1.67% |
-| Growth | ₹30,00,000 | ₹10,839 | ₹12,000 | ₹22,839 | 0.76% |
-| Full scale | ₹90,00,000 | ₹18,520 | ₹36,000 | ₹54,520 | 0.61% |
+| MVP | ₹3,00,000 | ₹2,800 | ₹1,200 | ₹4,000 | 1.33% |
+| Growth | ₹30,00,000 | ₹7,840 | ₹12,000 | ₹19,840 | 0.66% |
+| Full scale | ₹90,00,000 | ₹9,520 | ₹36,000 | ₹45,520 | 0.51% |
 
 Infrastructure costs become a smaller % of GMV as you scale — a healthy sign.
 

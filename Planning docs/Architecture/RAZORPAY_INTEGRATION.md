@@ -27,7 +27,7 @@ Flutter opens Razorpay SDK with those values
 Flutter calls: POST /v1/orders/:orderId/confirm
   ├─ Backend verifies HMAC-SHA256 signature (this is the security boundary)
   ├─ If valid: atomic transaction (stock decrement + order confirm)
-  ├─ Enqueues job to pgmq queue: order_events → Shiprocket/Interakt/FCM
+  ├─ Enqueues job to pgmq queue: order_events → Shiprocket/in-app/FCM
   ├─ Returns: 201 { orderId, status: 'confirmed' }
   ↓
 Order confirmed, cart cleared, redirect to confirmation screen
@@ -362,7 +362,7 @@ Result: Webhook processed exactly once.
 - **Test Payment Methods**:
   - Card: `4111 1111 1111 1111` (any future expiry)
   - UPI: `success@razorpay`
-- **No real money moves**. Orders are confirmed but obviously not fulfilled (no Shiprocket, WhatsApp in M3 yet).
+- **No real money moves**. Orders are confirmed but obviously not fulfilled (no Shiprocket/fulfillment in M3 yet).
 
 ### Live Mode (Phase 7 — after all other features deployed)
 - Swap to live API keys in Supabase secrets
@@ -524,7 +524,7 @@ supabase secrets list
                                               │
                                     ┌─────────┼─────────┐
                                     │         │         │
-                            Shiprocket    WhatsApp    FCM Push
+                            Shiprocket     In-app     FCM Push
                             (shipment)   (confirmed)  (notification)
                                     │         │         │
                                     └─────────┴─────────┘

@@ -523,7 +523,7 @@ stock_notify_requests        -- see §12a Back-in-Stock Email Notifications
 notifications
   id              UUID PRIMARY KEY
   user_id         UUID FK → users.id NOT NULL
-  channel         TEXT                     -- 'push' | 'whatsapp' | 'email'
+  channel         TEXT                     -- 'push' | 'in_app' (no 'whatsapp' -- see §12)
   type            TEXT                     -- 'order_confirmed' | 'shipped' | etc.
   title           TEXT
   body            TEXT
@@ -1002,12 +1002,13 @@ else:
 
 ## 12. Notification Architecture
 
+**Decision (2026-07-12): no Interakt/WhatsApp Business API integration.** Order-status communication to the customer is **in-app notifications + FCM push only**. The shipment carrier (Shiprocket) sends its own WhatsApp/SMS delivery updates directly to the customer under its own account — Baker Ally does not build, pay for, or route through a WhatsApp Business API for this. (A plain `wa.me` link on the Contact Us screen for customer support chat is unaffected — that's a static link, not an API integration.)
+
 ### Channels
 
 | Channel | Tool | Trigger |
 |---|---|---|
 | Push | FCM via firebase-admin | Order status changes, promotions |
-| WhatsApp | **Interakt** (locked — not WATI) | Order confirmed, shipped, out for delivery, delivered |
 | In-app | `notifications` table via Dio polling | Bell badge + notification list |
 
 ### In-app Notification Bell — Dio Polling (not Supabase Realtime)
@@ -1263,7 +1264,7 @@ All list endpoints paginate with `?page=1&limit=20`. Never return unbounded list
 | Duplicate orders on payment retry | Medium | High | `razorpay_payment_id UNIQUE` constraint + idempotency key on POST /orders |
 | Stock goes negative (oversell) | Medium | High | Decrement stock in DB transaction when order confirmed — not at cart add |
 | Image storage costs blow up | Low | Medium | Compress to webp on upload, set max 5MB per image, lazy-load in Flutter |
-| WhatsApp template rejection by Meta | Medium | Medium | Submit templates before launch — approval takes 1–2 days |
+| ~~WhatsApp template rejection by Meta~~ | — | — | Removed 2026-07-12 — no Interakt/WhatsApp integration; in-app + FCM push only (§12) |
 | Porter API instability for local delivery | Medium | Medium | Fallback to Shiprocket if Porter fails — order still ships, just slower |
 | Admin privilege level misconfiguration exposes data | Low | High | Backend ownership checks independent of privilege levels — service-role key always enforces user_id checks |
 

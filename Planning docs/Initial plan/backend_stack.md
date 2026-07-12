@@ -2,6 +2,7 @@
 
 > Supabase Edge Functions + TypeScript backend for Baker Ally (India, 10,000 concurrent users)
 > Last updated: July 2026
+> **Superseded note (2026-07-12):** Section 10 (WhatsApp — Interakt) is no longer planned. Order-status updates are in-app notifications + FCM push only; Shiprocket sends its own WhatsApp/SMS delivery updates independently. See `00_common_architecture.md` §12.
 
 ---
 

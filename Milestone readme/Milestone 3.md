@@ -31,7 +31,7 @@ Built in three sub-phases (backend → Flutter cart → Flutter checkout).
 
 ## 2. Scope Decisions (locked with you before/while building — don't re-litigate without asking)
 
-- **7 new tables, not the 9 in the kickoff prompt.** `shipments` and `notifications` are Phase 4 scope (their only producers — Shiprocket, WhatsApp, FCM — don't exist until then), per `Phase_Plan_Technical.md`. You confirmed deferring them.
+- **7 new tables, not the 9 in the kickoff prompt.** `shipments` and `notifications` are Phase 4 scope (their only producers — Shiprocket, FCM, and the in-app bell — don't exist until then), per `Phase_Plan_Technical.md`. You confirmed deferring them.
 - **Flat delivery fee = ₹49 (4900 paise), hardcoded placeholder.** See §3 — this is the one genuinely pending item.
 - **Demo discount `BAKE10` (10% off) is seeded** so the discount flow demos without the admin panel.
 - **Addresses: list + add only this milestone.** Enough to unblock checkout. `PATCH`/`DELETE` and the full "Delivery Addresses" management screen stay Phase 5.
@@ -44,7 +44,7 @@ Built in three sub-phases (backend → Flutter cart → Flutter checkout).
    - If these ever disagree, `POST /cart/checkout` returns `PRICE_CHANGED` and checkout can't proceed. When the real shipping rule is decided, update both (or, better, have the server return the shipping cost and the client stop computing it — a small future refactor).
 2. **Razorpay is test-mode only.** Live keys are a Phase 7 swap (risk register). No real money moves this milestone.
 3. **No live end-to-end run** — same as Milestones 1 & 2, no Supabase/Razorpay credentials in this session. Verified by `deno check`, `flutter analyze`, `flutter test`, `build_runner` only.
-4. **Order history / tracking is Phase 4.** The confirmation screen shows the order ID + total + a static "estimated delivery" line and a WhatsApp note, but there is no "Track Order" button yet (no order-detail screen or Shiprocket status until Phase 4). "Continue Shopping" is the only CTA.
+4. **Order history / tracking is Phase 4.** The confirmation screen shows the order ID + total + a static "estimated delivery" line and an in-app/push confirmation note (updated 2026-07-12 — was a WhatsApp note; see the no-Interakt scope decision in `Phase_Plan_Technical.md`), but there is no "Track Order" button yet (no order-detail screen or Shiprocket status until Phase 4). "Continue Shopping" is the only CTA.
 5. **`payment.success` is confirmed client-side, not by webhook.** The Razorpay webhook only handles `payment.failed` → cancel. Success goes through the client-driven `POST /orders/:id/confirm` (the standard Razorpay pattern). Both paths are idempotent.
 
 ## 4. Deviations From the Plan / Docs (all deliberate, noted here)
@@ -87,7 +87,7 @@ Boxes are checked for "code complete + locally verified." The three that need a 
 
 - **No live end-to-end run** (no credentials this session).
 - **Shipping cost is a placeholder** (§3.1).
-- **Order history, tracking, WhatsApp, push, Shiprocket** — all Phase 4.
+- **Order history, tracking, in-app bell, push, Shiprocket** — all Phase 4.
 - **Address edit/delete + management screen** — Phase 5.
 - **`product_discounts` table is built but unused by checkout** — Milestone 3 checkout only applies code-based discounts (`discounts.code`); product-scoped auto-discounts are for the Phase 6 admin panel.
 
