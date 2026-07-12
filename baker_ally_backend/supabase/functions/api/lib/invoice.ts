@@ -1,4 +1,4 @@
-import { PDFDocument, rgb, StandardFonts } from "pdf-lib";
+import { PDFDocument, rgb, StandardFonts } from "https://esm.sh/pdf-lib@^1.17.1";
 
 import type { addresses, orderItems, orders } from "../db/schema.ts";
 
