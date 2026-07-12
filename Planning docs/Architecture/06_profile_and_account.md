@@ -194,7 +194,7 @@ Static or CMS-driven content screen. Bakers can browse recipe content from Baker
 ### 📞 Contact Us → `/contact`
 
 Simple screen with:
-- WhatsApp chat button (opens Interakt chat or wa.me link)
+- WhatsApp chat button (plain `wa.me` link to the support number — a static link, not an Interakt/WhatsApp Business API integration; see `00_common_architecture.md` §12 for the no-Interakt decision)
 - Email address
 - Support hours
 

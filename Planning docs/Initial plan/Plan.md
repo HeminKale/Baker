@@ -1,5 +1,7 @@
 # Baker Ally — Full Production Stack Plan
 
+> **Superseded note (2026-07-12):** This is the original planning draft. Current source of truth is `Phase_Plan_Technical.md` + `Architecture/*.md`. One decision made since this doc was written: **no Interakt/WhatsApp Business API integration** — order-status updates are in-app notifications + Firebase push (FCM) only; Shiprocket sends its own WhatsApp/SMS delivery updates independently. All "WhatsApp"/"Interakt" mentions below are historical and no longer planned.
+
 ## Context
 
 Baker Ally is a product marketplace app for India — 10,000 concurrent users. Customers use a Flutter mobile app (iOS + Android) to browse, order, and pay. Admins manage the entire store from a web browser. A Node.js backend on Supabase Edge Functions handles all business logic — payments, shipping, WhatsApp notifications, and order processing.
@@ -220,12 +222,8 @@ The integration pattern is identical for all gateways:
 ### Porter
 - contact their team directly to set up a business or enterprise account.
 
-### WhatsApp — Interakt or WATI
-## NOTE: We need to think if we really need whatsapp notifications of push notifications from app is enough
-- Backend sends WhatsApp messages via Interakt/WATI API
-- Triggers: order confirmed, shipped, out for delivery, delivered
-- Template messages (required by WhatsApp Business API)
-- Customer phone number collected at checkout
+### ~~WhatsApp — Interakt or WATI~~
+## RESOLVED (2026-07-12): No — in-app notifications + push cover this. Shiprocket sends its own WhatsApp/SMS delivery updates independently; Baker Ally doesn't build or pay for a WhatsApp Business API.
 
 ### Push Notifications — Firebase Messaging
 - Backend sends FCM push via `firebase-admin` Node SDK

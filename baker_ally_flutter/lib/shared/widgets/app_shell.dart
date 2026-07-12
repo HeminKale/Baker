@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../features/catalog/presentation/providers/catalog_providers.dart';
+import '../../features/cart/presentation/providers/cart_providers.dart';
 
 /// Global bottom-nav shell -- 00_common_architecture.md §2. The bottom nav
 /// bar never disappears across the 5 tabs; sub-screens added in later
@@ -37,8 +37,7 @@ class AppShell extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final cart = ref.watch(localCartStubProvider);
-    final cartCount = cart.values.fold(0, (sum, qty) => sum + qty);
+    final cartCount = ref.watch(cartProvider.select((s) => s.totalItems));
 
     final destinations = [
       ..._baseDestinations,

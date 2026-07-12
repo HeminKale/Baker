@@ -2,6 +2,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../cart/presentation/providers/cart_providers.dart';
 import '../../../wishlist/presentation/widgets/wishlist_heart.dart';
 import '../../data/models/product_detail.dart';
 import '../../data/models/product_image.dart';
@@ -119,7 +120,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   left: 0,
                   right: 0,
                   bottom: 0,
-                  child: _AddToCartBar(variant: variant),
+                  child: _AddToCartBar(
+                    variant: variant,
+                    productId: detail.id,
+                    productName: detail.name,
+                    imageUrl: detail.images.isNotEmpty ? detail.images.first.publicUrl : null,
+                  ),
                 ),
             ],
           );
@@ -268,13 +274,21 @@ class _RelatedProducts extends ConsumerWidget {
 /// Idle -> stepper -> out-of-stock states, matching the catalog tile's
 /// interaction (02_catalog_tab.md §4 "Fixed Bottom CTA").
 class _AddToCartBar extends ConsumerWidget {
-  const _AddToCartBar({required this.variant});
+  const _AddToCartBar({
+    required this.variant,
+    required this.productId,
+    required this.productName,
+    this.imageUrl,
+  });
 
   final ProductVariant variant;
+  final String productId;
+  final String productName;
+  final String? imageUrl;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final quantity = ref.watch(localCartStubProvider.select((m) => m[variant.id] ?? 0));
+    final quantity = ref.watch(cartProvider.select((s) => s.quantityOf(variant.id)));
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -296,7 +310,14 @@ class _AddToCartBar extends ConsumerWidget {
                         key: const ValueKey('add'),
                         width: double.infinity,
                         child: FilledButton(
-                          onPressed: () => addToCartStub(context, ref, variant),
+                          onPressed: () => addToCart(
+                            context,
+                            ref,
+                            variant,
+                            productId: productId,
+                            productName: productName,
+                            imageUrl: imageUrl,
+                          ),
                           child: Text('+ Add to Cart · ₹${(variant.currentPrice / 100).toStringAsFixed(0)}'),
                         ),
                       )
@@ -304,12 +325,19 @@ class _AddToCartBar extends ConsumerWidget {
                         key: const ValueKey('stepper'),
                         children: [
                           IconButton(
-                            onPressed: () => ref.read(localCartStubProvider.notifier).decrement(variant.id),
+                            onPressed: () => ref.read(cartProvider.notifier).decrement(variant.id),
                             icon: const Icon(Icons.remove_circle_outline),
                           ),
                           Expanded(child: Center(child: Text('$quantity'))),
                           IconButton(
-                            onPressed: () => addToCartStub(context, ref, variant),
+                            onPressed: () => addToCart(
+                              context,
+                              ref,
+                              variant,
+                              productId: productId,
+                              productName: productName,
+                              imageUrl: imageUrl,
+                            ),
                             icon: const Icon(Icons.add_circle_outline),
                           ),
                         ],

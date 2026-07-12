@@ -11,6 +11,10 @@
 - Plugins can be re-evaluated in Phase 5+ when compatibility improves or alternatives are assessed
 - See Milestone 1 manual steps.md and Development vs Production Checklist.md for details
 
+**Scope Update (July 12, 2026):**
+- **No Interakt / WhatsApp Business API integration.** Customer order-status communication is **in-app notifications + FCM push only** (Phase 4 §4.4-4.6). Shiprocket sends its own WhatsApp/SMS delivery updates directly under its own account — Baker Ally doesn't build or pay for a WhatsApp Business API for this.
+- **Phase 4 (Orders & Fulfillment / Shiprocket) is deferred** until the Porter vs. Shiprocket delivery-partner decision is made. **Phase 5 (Account & Discovery) is being built next**, pulled forward ahead of Phase 4 — this requires pulling a slim version of §4.7's order-listing endpoints forward into Phase 5, and a scope decision on Reviews & Ratings eligibility (§5.8), since that depends on an order reaching `delivered` status, which normally happens via Phase 4. See the Milestone 5 build writeup once built.
+
 ---
 
 ## Overview
@@ -307,7 +311,7 @@ POST /v1/webhooks/razorpay
 
 #### 3.7 Order Confirmation Screen
 - Clears cart (Drift + server)
-- Shows order ID, total paid, WhatsApp confirmation note, estimated delivery
+- Shows order ID, total paid, in-app confirmation note, estimated delivery
 - No back navigation to checkout
 
 ### Acceptance Criteria
@@ -327,7 +331,7 @@ POST /v1/webhooks/razorpay
 ## Phase 4 — Orders & Fulfillment
 **Duration:** Week 7–8
 **Depends on:** Phase 3 complete
-**Goal:** Orders flow to Shiprocket, customers get WhatsApp + push updates automatically.
+**Goal:** Orders flow to Shiprocket, customers get in-app + push updates automatically.
 
 ### What gets built
 
@@ -342,7 +346,7 @@ shipments, notifications, webhook_events (already exists from Phase 3)
 - Background worker Edge Function (triggered by Supabase Cron every 30s):
   - Reads from `order_events` queue
   - Calls Shiprocket API → creates shipment → stores AWB
-  - Calls Interakt API → sends WhatsApp "order confirmed" template
+  - Inserts an in-app `notifications` row ("order confirmed" etc.)
   - Calls Firebase Admin → sends FCM push notification
 
 #### 4.3 Shiprocket Integration
@@ -358,19 +362,19 @@ POST /v1/webhooks/shiprocket
   → enqueues notification job
 ```
 
-#### 4.4 Interakt (WhatsApp) Integration
-Triggered by queue worker:
+#### 4.4 In-App Notifications
+~~Interakt (WhatsApp) Integration~~ — **removed 2026-07-12, no WhatsApp Business API.** Same 4 triggers, delivered as `notifications` table rows (read by the bell, §4.6) instead of WhatsApp templates:
 ```
-order_confirmed  → template: "Your Baker Ally order #X is confirmed. Total: ₹X"
-shipped          → template: "Your order is on the way! Track: [AWB link]"
-out_for_delivery → template: "Your order will be delivered today"
-delivered        → template: "Order delivered! How was your experience?"
+order_confirmed  → "Your Baker Ally order #X is confirmed. Total: ₹X"
+shipped          → "Your order is on the way! Track: [AWB link]"
+out_for_delivery → "Your order will be delivered today"
+delivered        → "Order delivered! How was your experience?"
 ```
-All templates pre-approved by Meta before deployment.
+Shiprocket sends its own WhatsApp/SMS delivery updates independently, outside this app.
 
 #### 4.5 FCM Push Notifications
 - `firebase-admin` initialised in Edge Function
-- Same 4 triggers as WhatsApp — parallel send
+- Same 4 triggers as §4.4 — parallel send alongside the in-app notification row
 - Notification tap → deep links to `/orders/:id` via `app_links`
 
 #### 4.6 Notification Bell (Flutter)
@@ -388,7 +392,7 @@ GET /v1/orders/:id                      — order detail + items + shipment
 
 ### Acceptance Criteria
 - [ ] After payment, queue job fires within 60s — Shiprocket shipment created
-- [ ] WhatsApp message delivered to test number on each order status change
+- [ ] In-app notification row created on each order status change
 - [ ] FCM push received on test device on each status change
 - [ ] Shiprocket webhook updates order status in DB correctly
 - [ ] Webhook dedup: same Shiprocket event delivered twice → only processed once
@@ -407,8 +411,8 @@ Order confirmed (DB)
   ┌──────┴────────────────────┐
   │                           │
   ▼                           ▼
-Shiprocket API          Interakt API + FCM
-(create shipment)       (WhatsApp + push)
+Shiprocket API          In-app row + FCM
+(create shipment)       (notifications + push)
   │
   ▼
 AWB stored in shipments table
@@ -417,7 +421,7 @@ AWB stored in shipments table
 Order status updated
   │
   ▼
-Notification enqueued → WhatsApp + push sent
+Notification enqueued → in-app + push sent
 ```
 
 ---
@@ -631,7 +635,6 @@ PATCH  /v1/admin/users/:id/role
 
 #### 7.4 Production Hardening
 - Razorpay live keys set in Supabase secrets (replace test keys)
-- Interakt WhatsApp templates approved by Meta
 - Rate limiting verified: `/v1/products`, `/v1/cart/checkout` limits tested
 - Sentry alerts configured: payment failure → immediate Slack/email alert
 - Supabase DB backups verified (Pro plan daily backups)
@@ -646,7 +649,7 @@ PATCH  /v1/admin/users/:id/role
 - [ ] Flutter app passes App Store review guidelines checklist
 - [ ] k6 load test: p99 < 800ms at 1,000 concurrent users on `/v1/products`
 - [ ] Razorpay live payment end-to-end tested with real ₹1 transaction
-- [ ] WhatsApp messages delivered on live order flow
+- [ ] In-app + push notifications delivered on live order flow
 - [ ] Codemagic auto-build triggers on `main` push → TestFlight upload
 - [ ] Crashlytics receives a test crash within 5 minutes
 - [ ] All environment secrets confirmed as production values (no test keys in prod)
@@ -660,7 +663,7 @@ PATCH  /v1/admin/users/:id/role
 | 1 — Foundation | Week 1–2 | Auth, DB scaffold, Hono scaffold | None |
 | 2 — Catalog & Search | Week 3–4 | Full browsable catalog in Flutter | Phase 1 |
 | 3 — Cart & Payments | Week 5–6 | End-to-end purchase flow | Phase 2 |
-| 4 — Orders & Fulfillment | Week 7–8 | Shiprocket + WhatsApp + Push | Phase 3 |
+| 4 — Orders & Fulfillment | Week 7–8 | Shiprocket + In-app + Push | Phase 3 |
 | 5 — Account & Discovery | Week 9–10 | Profile, Wishlist, Order Again | Phase 4 |
 | 6 — Admin Web Panel | Week 11–12 | Full store management UI | Phase 3 |
 | 7 — Polish & Launch | Week 13–14 | App Store ready, load tested | Phase 5 + 6 |
@@ -675,7 +678,7 @@ PATCH  /v1/admin/users/:id/role
 |---|---|---|
 | Left strip scroll-spy performance | 2 | Budget extra time; debounce listeners |
 | Razorpay test → live key switch | 7 | Verify early in Phase 3, not at Phase 7 |
-| Interakt template approval delay (1–2 days Meta review) | 4 | Submit templates at start of Phase 4, not end |
+| ~~Interakt template approval delay~~ | — | Removed 2026-07-12 — no WhatsApp Business API integration |
 | App Store rejection | 7 | Review Apple guidelines before Phase 7; test on real device throughout |
 | Shiprocket sandbox vs live API differences | 4 | Test against Shiprocket sandbox in Phase 4; live in Phase 7 |
 | Porter integration (not yet planned) | Post-launch | Architecture placeholder exists; does not block launch |

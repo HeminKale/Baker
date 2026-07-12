@@ -1,4 +1,4 @@
-import { boolean, integer, jsonb, pgTable, text, timestamp, uuid } from "npm:drizzle-orm/pg-core";
+import { boolean, integer, jsonb, pgTable, text, timestamp, unique, uuid } from "npm:drizzle-orm/pg-core";
 
 // Mirrors migrations/001-005 -- see those files for constraints/comments
 // this schema doesn't repeat (RLS, FK-only indexes, etc).
@@ -141,3 +141,110 @@ export const wishlists = pgTable("wishlists", {
     .references(() => productVariants.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+// Mirrors migrations/014-021 -- cart + discounts + orders (Milestone 3 / Phase 3).
+// Money columns are paise (INTEGER), matching product_variants. Status/type
+// fields stay text() (the CHECK constraint lives in SQL) -- no pgEnum precedent.
+
+export const carts = pgTable("carts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .unique()
+    .references(() => users.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const cartItems = pgTable(
+  "cart_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    cartId: uuid("cart_id")
+      .notNull()
+      .references(() => carts.id, { onDelete: "cascade" }),
+    variantId: uuid("variant_id")
+      .notNull()
+      .references(() => productVariants.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull().default(1),
+    addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    cartVariantUnique: unique().on(table.cartId, table.variantId),
+  }),
+);
+
+export const discounts = pgTable("discounts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  code: text("code").unique(),
+  name: text("name").notNull(),
+  type: text("type").notNull(), // 'percent' | 'flat' | 'free_shipping' (CHECK in SQL)
+  value: integer("value").notNull().default(0),
+  minOrderValue: integer("min_order_value").notNull().default(0),
+  maxUses: integer("max_uses"),
+  usesCount: integer("uses_count").notNull().default(0),
+  isActive: boolean("is_active").notNull().default(true),
+  startsAt: timestamp("starts_at", { withTimezone: true }),
+  expiresAt: timestamp("expires_at", { withTimezone: true }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const productDiscounts = pgTable("product_discounts", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  productId: uuid("product_id").references(() => products.id, { onDelete: "cascade" }),
+  variantId: uuid("variant_id").references(() => productVariants.id, { onDelete: "cascade" }),
+  discountId: uuid("discount_id")
+    .notNull()
+    .references(() => discounts.id, { onDelete: "cascade" }),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const orders = pgTable("orders", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  addressId: uuid("address_id")
+    .notNull()
+    .references(() => addresses.id),
+  status: text("status").notNull().default("pending"),
+  subtotal: integer("subtotal").notNull(),
+  discountId: uuid("discount_id").references(() => discounts.id),
+  discountValue: integer("discount_value").notNull().default(0),
+  shippingCost: integer("shipping_cost").notNull().default(0),
+  total: integer("total").notNull(),
+  razorpayOrderId: text("razorpay_order_id"),
+  razorpayPaymentId: text("razorpay_payment_id").unique(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const orderItems = pgTable("order_items", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  orderId: uuid("order_id")
+    .notNull()
+    .references(() => orders.id, { onDelete: "cascade" }),
+  variantId: uuid("variant_id")
+    .notNull()
+    .references(() => productVariants.id),
+  productName: text("product_name").notNull(),
+  variantName: text("variant_name").notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPrice: integer("unit_price").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+});
+
+export const webhookEvents = pgTable(
+  "webhook_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    source: text("source").notNull(),
+    eventId: text("event_id").notNull(),
+    payload: jsonb("payload"),
+    processedAt: timestamp("processed_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    sourceEventUnique: unique().on(table.source, table.eventId),
+  }),
+);

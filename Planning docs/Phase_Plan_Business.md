@@ -179,7 +179,7 @@ Checkout Page
 **Weeks 7–8**
 
 **What you get:**
-Orders placed in Milestone 3 now automatically trigger delivery booking (Shiprocket) and customer communications (WhatsApp messages + push notifications).
+Orders placed in Milestone 3 now automatically trigger delivery booking (Shiprocket) and customer communications (in-app notifications + push notifications). **Note (2026-07-12): no WhatsApp messaging is built by Baker Ally.** Shiprocket sends its own WhatsApp/SMS delivery updates directly to the customer under its own account — that's the carrier's communication, not something this app builds or pays for.
 
 ```
 Order Journey — What the customer sees:
@@ -187,19 +187,19 @@ Order Journey — What the customer sees:
 Order placed
     │
     ▼
-💬 WhatsApp: "Your Baker Ally order #3392 is confirmed! Total: ₹985"
+🔔 In-app: "Your Baker Ally order #3392 is confirmed! Total: ₹985"
 📱 Push notification: "Order confirmed"
     │
     ▼  (when warehouse ships)
-💬 WhatsApp: "Your order is on the way! Track: [link]"
+🔔 In-app: "Your order is on the way! Track: [link]"
 📱 Push notification: "Order shipped"
     │
     ▼  (day of delivery)
-💬 WhatsApp: "Your order will be delivered today"
+🔔 In-app: "Your order will be delivered today"
 📱 Push notification: "Out for delivery"
     │
     ▼
-💬 WhatsApp: "Order delivered! How was your experience?"
+🔔 In-app: "Order delivered! How was your experience?"
 📱 Push notification: "Delivered ✅"
 ```
 
@@ -218,13 +218,13 @@ Order Status Screen (in app)
 ```
 
 **What this enables for the business:**
-- Fully automated post-order communication — no manual WhatsApp messages needed
-- Customer always knows where their order is without calling
-- Delivery is handled through Shiprocket (BlueDart, Delhivery, and 25+ carriers)
+- Fully automated post-order communication — no manual messages needed, no WhatsApp Business API cost
+- Customer always knows where their order is without calling (in-app + push)
+- Delivery is handled through Shiprocket (BlueDart, Delhivery, and 25+ carriers) — Shiprocket's own WhatsApp/SMS updates to the customer are separate and automatic on their end
 - Staff only need to pick, pack, and hand over to courier
 
 **What you can demo at this milestone:**
-- Place a test order → receive WhatsApp message (on real WhatsApp number)
+- Place a test order → see the in-app notification appear
 - Place a test order → receive push notification on phone
 - View live order tracking status in the app
 - Notification bell in app shows order updates
@@ -383,7 +383,7 @@ Launch Checklist Status
   ✅ Flutter app on TestFlight (Apple beta testing)
   ✅ Flutter app on Play Internal Testing (Android beta)
   ✅ Real Razorpay payments tested (live ₹1 transaction)
-  ✅ WhatsApp messages delivered on real orders
+  ✅ In-app + push notifications delivered on real orders
   ✅ App Store submission — under review
   ✅ Play Store submission — under review
   ✅ Admin panel live at admin.bakerally.in
@@ -393,14 +393,14 @@ Launch Checklist Status
 
 **What this enables for the business:**
 - Real customers can download and buy from Day 1
-- Every order automatically triggers delivery, WhatsApp, and push notifications
+- Every order automatically triggers delivery, in-app, and push notifications
 - Any technical error alerts the team immediately — nothing goes unnoticed
 - App is production-hardened and ready for the launch marketing push
 
 **What you can demo at this milestone:**
 - Download from App Store / Play Store (or TestFlight)
 - Complete a real purchase end-to-end
-- Receive real WhatsApp delivery updates
+- Receive real in-app + push delivery updates
 
 ---
 

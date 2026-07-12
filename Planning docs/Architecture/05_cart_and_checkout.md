@@ -345,8 +345,8 @@ After successful payment, replaces checkout page (no back navigation to checkout
 │           Total paid:  ₹985                           │
 │                                                       │
 │  ┌───────────────────────────────────────────────┐  │
-│  │  📱 You'll receive a WhatsApp confirmation    │  │
-│  │     on +91 98765 43210                        │  │
+│  │  🔔 You'll get an order update here and a     │  │
+│  │     push notification shortly                │  │
 │  └───────────────────────────────────────────────┘  │
 │                                                       │
 │  Estimated delivery: 9 Jul – 11 Jul 2026              │

@@ -2219,6 +2219,1141 @@ class CachedWishlistItemsCompanion extends UpdateCompanion<CachedWishlistItem> {
   }
 }
 
+class $CachedCartItemsTable extends CachedCartItems
+    with TableInfo<$CachedCartItemsTable, CachedCartItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedCartItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _variantIdMeta = const VerificationMeta(
+    'variantId',
+  );
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+    'variant_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _serverIdMeta = const VerificationMeta(
+    'serverId',
+  );
+  @override
+  late final GeneratedColumn<String> serverId = GeneratedColumn<String>(
+    'server_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<String> productId = GeneratedColumn<String>(
+    'product_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productNameMeta = const VerificationMeta(
+    'productName',
+  );
+  @override
+  late final GeneratedColumn<String> productName = GeneratedColumn<String>(
+    'product_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _variantNameMeta = const VerificationMeta(
+    'variantName',
+  );
+  @override
+  late final GeneratedColumn<String> variantName = GeneratedColumn<String>(
+    'variant_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _currentPriceMeta = const VerificationMeta(
+    'currentPrice',
+  );
+  @override
+  late final GeneratedColumn<int> currentPrice = GeneratedColumn<int>(
+    'current_price',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _originalPriceMeta = const VerificationMeta(
+    'originalPrice',
+  );
+  @override
+  late final GeneratedColumn<int> originalPrice = GeneratedColumn<int>(
+    'original_price',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stockQtyMeta = const VerificationMeta(
+    'stockQty',
+  );
+  @override
+  late final GeneratedColumn<int> stockQty = GeneratedColumn<int>(
+    'stock_qty',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _quantityMeta = const VerificationMeta(
+    'quantity',
+  );
+  @override
+  late final GeneratedColumn<int> quantity = GeneratedColumn<int>(
+    'quantity',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    variantId,
+    serverId,
+    productId,
+    productName,
+    variantName,
+    currentPrice,
+    originalPrice,
+    stockQty,
+    quantity,
+    imageUrl,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_cart_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedCartItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('variant_id')) {
+      context.handle(
+        _variantIdMeta,
+        variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_variantIdMeta);
+    }
+    if (data.containsKey('server_id')) {
+      context.handle(
+        _serverIdMeta,
+        serverId.isAcceptableOrUnknown(data['server_id']!, _serverIdMeta),
+      );
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('product_name')) {
+      context.handle(
+        _productNameMeta,
+        productName.isAcceptableOrUnknown(
+          data['product_name']!,
+          _productNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_productNameMeta);
+    }
+    if (data.containsKey('variant_name')) {
+      context.handle(
+        _variantNameMeta,
+        variantName.isAcceptableOrUnknown(
+          data['variant_name']!,
+          _variantNameMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_variantNameMeta);
+    }
+    if (data.containsKey('current_price')) {
+      context.handle(
+        _currentPriceMeta,
+        currentPrice.isAcceptableOrUnknown(
+          data['current_price']!,
+          _currentPriceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_currentPriceMeta);
+    }
+    if (data.containsKey('original_price')) {
+      context.handle(
+        _originalPriceMeta,
+        originalPrice.isAcceptableOrUnknown(
+          data['original_price']!,
+          _originalPriceMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_originalPriceMeta);
+    }
+    if (data.containsKey('stock_qty')) {
+      context.handle(
+        _stockQtyMeta,
+        stockQty.isAcceptableOrUnknown(data['stock_qty']!, _stockQtyMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stockQtyMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_quantityMeta);
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {variantId};
+  @override
+  CachedCartItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedCartItem(
+      variantId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_id'],
+      )!,
+      serverId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}server_id'],
+      ),
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_id'],
+      )!,
+      productName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_name'],
+      )!,
+      variantName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_name'],
+      )!,
+      currentPrice: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_price'],
+      )!,
+      originalPrice: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}original_price'],
+      )!,
+      stockQty: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stock_qty'],
+      )!,
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}quantity'],
+      )!,
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
+    );
+  }
+
+  @override
+  $CachedCartItemsTable createAlias(String alias) {
+    return $CachedCartItemsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedCartItem extends DataClass implements Insertable<CachedCartItem> {
+  final String variantId;
+  final String? serverId;
+  final String productId;
+  final String productName;
+  final String variantName;
+  final int currentPrice;
+  final int originalPrice;
+  final int stockQty;
+  final int quantity;
+  final String? imageUrl;
+  const CachedCartItem({
+    required this.variantId,
+    this.serverId,
+    required this.productId,
+    required this.productName,
+    required this.variantName,
+    required this.currentPrice,
+    required this.originalPrice,
+    required this.stockQty,
+    required this.quantity,
+    this.imageUrl,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['variant_id'] = Variable<String>(variantId);
+    if (!nullToAbsent || serverId != null) {
+      map['server_id'] = Variable<String>(serverId);
+    }
+    map['product_id'] = Variable<String>(productId);
+    map['product_name'] = Variable<String>(productName);
+    map['variant_name'] = Variable<String>(variantName);
+    map['current_price'] = Variable<int>(currentPrice);
+    map['original_price'] = Variable<int>(originalPrice);
+    map['stock_qty'] = Variable<int>(stockQty);
+    map['quantity'] = Variable<int>(quantity);
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
+    return map;
+  }
+
+  CachedCartItemsCompanion toCompanion(bool nullToAbsent) {
+    return CachedCartItemsCompanion(
+      variantId: Value(variantId),
+      serverId: serverId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(serverId),
+      productId: Value(productId),
+      productName: Value(productName),
+      variantName: Value(variantName),
+      currentPrice: Value(currentPrice),
+      originalPrice: Value(originalPrice),
+      stockQty: Value(stockQty),
+      quantity: Value(quantity),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
+    );
+  }
+
+  factory CachedCartItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedCartItem(
+      variantId: serializer.fromJson<String>(json['variantId']),
+      serverId: serializer.fromJson<String?>(json['serverId']),
+      productId: serializer.fromJson<String>(json['productId']),
+      productName: serializer.fromJson<String>(json['productName']),
+      variantName: serializer.fromJson<String>(json['variantName']),
+      currentPrice: serializer.fromJson<int>(json['currentPrice']),
+      originalPrice: serializer.fromJson<int>(json['originalPrice']),
+      stockQty: serializer.fromJson<int>(json['stockQty']),
+      quantity: serializer.fromJson<int>(json['quantity']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'variantId': serializer.toJson<String>(variantId),
+      'serverId': serializer.toJson<String?>(serverId),
+      'productId': serializer.toJson<String>(productId),
+      'productName': serializer.toJson<String>(productName),
+      'variantName': serializer.toJson<String>(variantName),
+      'currentPrice': serializer.toJson<int>(currentPrice),
+      'originalPrice': serializer.toJson<int>(originalPrice),
+      'stockQty': serializer.toJson<int>(stockQty),
+      'quantity': serializer.toJson<int>(quantity),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+    };
+  }
+
+  CachedCartItem copyWith({
+    String? variantId,
+    Value<String?> serverId = const Value.absent(),
+    String? productId,
+    String? productName,
+    String? variantName,
+    int? currentPrice,
+    int? originalPrice,
+    int? stockQty,
+    int? quantity,
+    Value<String?> imageUrl = const Value.absent(),
+  }) => CachedCartItem(
+    variantId: variantId ?? this.variantId,
+    serverId: serverId.present ? serverId.value : this.serverId,
+    productId: productId ?? this.productId,
+    productName: productName ?? this.productName,
+    variantName: variantName ?? this.variantName,
+    currentPrice: currentPrice ?? this.currentPrice,
+    originalPrice: originalPrice ?? this.originalPrice,
+    stockQty: stockQty ?? this.stockQty,
+    quantity: quantity ?? this.quantity,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+  );
+  CachedCartItem copyWithCompanion(CachedCartItemsCompanion data) {
+    return CachedCartItem(
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      serverId: data.serverId.present ? data.serverId.value : this.serverId,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      productName: data.productName.present
+          ? data.productName.value
+          : this.productName,
+      variantName: data.variantName.present
+          ? data.variantName.value
+          : this.variantName,
+      currentPrice: data.currentPrice.present
+          ? data.currentPrice.value
+          : this.currentPrice,
+      originalPrice: data.originalPrice.present
+          ? data.originalPrice.value
+          : this.originalPrice,
+      stockQty: data.stockQty.present ? data.stockQty.value : this.stockQty,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedCartItem(')
+          ..write('variantId: $variantId, ')
+          ..write('serverId: $serverId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('variantName: $variantName, ')
+          ..write('currentPrice: $currentPrice, ')
+          ..write('originalPrice: $originalPrice, ')
+          ..write('stockQty: $stockQty, ')
+          ..write('quantity: $quantity, ')
+          ..write('imageUrl: $imageUrl')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    variantId,
+    serverId,
+    productId,
+    productName,
+    variantName,
+    currentPrice,
+    originalPrice,
+    stockQty,
+    quantity,
+    imageUrl,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedCartItem &&
+          other.variantId == this.variantId &&
+          other.serverId == this.serverId &&
+          other.productId == this.productId &&
+          other.productName == this.productName &&
+          other.variantName == this.variantName &&
+          other.currentPrice == this.currentPrice &&
+          other.originalPrice == this.originalPrice &&
+          other.stockQty == this.stockQty &&
+          other.quantity == this.quantity &&
+          other.imageUrl == this.imageUrl);
+}
+
+class CachedCartItemsCompanion extends UpdateCompanion<CachedCartItem> {
+  final Value<String> variantId;
+  final Value<String?> serverId;
+  final Value<String> productId;
+  final Value<String> productName;
+  final Value<String> variantName;
+  final Value<int> currentPrice;
+  final Value<int> originalPrice;
+  final Value<int> stockQty;
+  final Value<int> quantity;
+  final Value<String?> imageUrl;
+  final Value<int> rowid;
+  const CachedCartItemsCompanion({
+    this.variantId = const Value.absent(),
+    this.serverId = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.productName = const Value.absent(),
+    this.variantName = const Value.absent(),
+    this.currentPrice = const Value.absent(),
+    this.originalPrice = const Value.absent(),
+    this.stockQty = const Value.absent(),
+    this.quantity = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedCartItemsCompanion.insert({
+    required String variantId,
+    this.serverId = const Value.absent(),
+    required String productId,
+    required String productName,
+    required String variantName,
+    required int currentPrice,
+    required int originalPrice,
+    required int stockQty,
+    required int quantity,
+    this.imageUrl = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : variantId = Value(variantId),
+       productId = Value(productId),
+       productName = Value(productName),
+       variantName = Value(variantName),
+       currentPrice = Value(currentPrice),
+       originalPrice = Value(originalPrice),
+       stockQty = Value(stockQty),
+       quantity = Value(quantity);
+  static Insertable<CachedCartItem> custom({
+    Expression<String>? variantId,
+    Expression<String>? serverId,
+    Expression<String>? productId,
+    Expression<String>? productName,
+    Expression<String>? variantName,
+    Expression<int>? currentPrice,
+    Expression<int>? originalPrice,
+    Expression<int>? stockQty,
+    Expression<int>? quantity,
+    Expression<String>? imageUrl,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (variantId != null) 'variant_id': variantId,
+      if (serverId != null) 'server_id': serverId,
+      if (productId != null) 'product_id': productId,
+      if (productName != null) 'product_name': productName,
+      if (variantName != null) 'variant_name': variantName,
+      if (currentPrice != null) 'current_price': currentPrice,
+      if (originalPrice != null) 'original_price': originalPrice,
+      if (stockQty != null) 'stock_qty': stockQty,
+      if (quantity != null) 'quantity': quantity,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedCartItemsCompanion copyWith({
+    Value<String>? variantId,
+    Value<String?>? serverId,
+    Value<String>? productId,
+    Value<String>? productName,
+    Value<String>? variantName,
+    Value<int>? currentPrice,
+    Value<int>? originalPrice,
+    Value<int>? stockQty,
+    Value<int>? quantity,
+    Value<String?>? imageUrl,
+    Value<int>? rowid,
+  }) {
+    return CachedCartItemsCompanion(
+      variantId: variantId ?? this.variantId,
+      serverId: serverId ?? this.serverId,
+      productId: productId ?? this.productId,
+      productName: productName ?? this.productName,
+      variantName: variantName ?? this.variantName,
+      currentPrice: currentPrice ?? this.currentPrice,
+      originalPrice: originalPrice ?? this.originalPrice,
+      stockQty: stockQty ?? this.stockQty,
+      quantity: quantity ?? this.quantity,
+      imageUrl: imageUrl ?? this.imageUrl,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (serverId.present) {
+      map['server_id'] = Variable<String>(serverId.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<String>(productId.value);
+    }
+    if (productName.present) {
+      map['product_name'] = Variable<String>(productName.value);
+    }
+    if (variantName.present) {
+      map['variant_name'] = Variable<String>(variantName.value);
+    }
+    if (currentPrice.present) {
+      map['current_price'] = Variable<int>(currentPrice.value);
+    }
+    if (originalPrice.present) {
+      map['original_price'] = Variable<int>(originalPrice.value);
+    }
+    if (stockQty.present) {
+      map['stock_qty'] = Variable<int>(stockQty.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<int>(quantity.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedCartItemsCompanion(')
+          ..write('variantId: $variantId, ')
+          ..write('serverId: $serverId, ')
+          ..write('productId: $productId, ')
+          ..write('productName: $productName, ')
+          ..write('variantName: $variantName, ')
+          ..write('currentPrice: $currentPrice, ')
+          ..write('originalPrice: $originalPrice, ')
+          ..write('stockQty: $stockQty, ')
+          ..write('quantity: $quantity, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $CachedAddressesTable extends CachedAddresses
+    with TableInfo<$CachedAddressesTable, CachedAddressesData> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedAddressesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _labelMeta = const VerificationMeta('label');
+  @override
+  late final GeneratedColumn<String> label = GeneratedColumn<String>(
+    'label',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _line1Meta = const VerificationMeta('line1');
+  @override
+  late final GeneratedColumn<String> line1 = GeneratedColumn<String>(
+    'line1',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _line2Meta = const VerificationMeta('line2');
+  @override
+  late final GeneratedColumn<String> line2 = GeneratedColumn<String>(
+    'line2',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cityMeta = const VerificationMeta('city');
+  @override
+  late final GeneratedColumn<String> city = GeneratedColumn<String>(
+    'city',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _stateMeta = const VerificationMeta('state');
+  @override
+  late final GeneratedColumn<String> state = GeneratedColumn<String>(
+    'state',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _pincodeMeta = const VerificationMeta(
+    'pincode',
+  );
+  @override
+  late final GeneratedColumn<String> pincode = GeneratedColumn<String>(
+    'pincode',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isDefaultMeta = const VerificationMeta(
+    'isDefault',
+  );
+  @override
+  late final GeneratedColumn<bool> isDefault = GeneratedColumn<bool>(
+    'is_default',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_default" IN (0, 1))',
+    ),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    label,
+    line1,
+    line2,
+    city,
+    state,
+    pincode,
+    isDefault,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_addresses';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedAddressesData> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('label')) {
+      context.handle(
+        _labelMeta,
+        label.isAcceptableOrUnknown(data['label']!, _labelMeta),
+      );
+    }
+    if (data.containsKey('line1')) {
+      context.handle(
+        _line1Meta,
+        line1.isAcceptableOrUnknown(data['line1']!, _line1Meta),
+      );
+    } else if (isInserting) {
+      context.missing(_line1Meta);
+    }
+    if (data.containsKey('line2')) {
+      context.handle(
+        _line2Meta,
+        line2.isAcceptableOrUnknown(data['line2']!, _line2Meta),
+      );
+    }
+    if (data.containsKey('city')) {
+      context.handle(
+        _cityMeta,
+        city.isAcceptableOrUnknown(data['city']!, _cityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_cityMeta);
+    }
+    if (data.containsKey('state')) {
+      context.handle(
+        _stateMeta,
+        state.isAcceptableOrUnknown(data['state']!, _stateMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_stateMeta);
+    }
+    if (data.containsKey('pincode')) {
+      context.handle(
+        _pincodeMeta,
+        pincode.isAcceptableOrUnknown(data['pincode']!, _pincodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_pincodeMeta);
+    }
+    if (data.containsKey('is_default')) {
+      context.handle(
+        _isDefaultMeta,
+        isDefault.isAcceptableOrUnknown(data['is_default']!, _isDefaultMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isDefaultMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  CachedAddressesData map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedAddressesData(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      label: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}label'],
+      ),
+      line1: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}line1'],
+      )!,
+      line2: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}line2'],
+      ),
+      city: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}city'],
+      )!,
+      state: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}state'],
+      )!,
+      pincode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}pincode'],
+      )!,
+      isDefault: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_default'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedAddressesTable createAlias(String alias) {
+    return $CachedAddressesTable(attachedDatabase, alias);
+  }
+}
+
+class CachedAddressesData extends DataClass
+    implements Insertable<CachedAddressesData> {
+  final String id;
+  final String? label;
+  final String line1;
+  final String? line2;
+  final String city;
+  final String state;
+  final String pincode;
+  final bool isDefault;
+  const CachedAddressesData({
+    required this.id,
+    this.label,
+    required this.line1,
+    this.line2,
+    required this.city,
+    required this.state,
+    required this.pincode,
+    required this.isDefault,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<String>(id);
+    if (!nullToAbsent || label != null) {
+      map['label'] = Variable<String>(label);
+    }
+    map['line1'] = Variable<String>(line1);
+    if (!nullToAbsent || line2 != null) {
+      map['line2'] = Variable<String>(line2);
+    }
+    map['city'] = Variable<String>(city);
+    map['state'] = Variable<String>(state);
+    map['pincode'] = Variable<String>(pincode);
+    map['is_default'] = Variable<bool>(isDefault);
+    return map;
+  }
+
+  CachedAddressesCompanion toCompanion(bool nullToAbsent) {
+    return CachedAddressesCompanion(
+      id: Value(id),
+      label: label == null && nullToAbsent
+          ? const Value.absent()
+          : Value(label),
+      line1: Value(line1),
+      line2: line2 == null && nullToAbsent
+          ? const Value.absent()
+          : Value(line2),
+      city: Value(city),
+      state: Value(state),
+      pincode: Value(pincode),
+      isDefault: Value(isDefault),
+    );
+  }
+
+  factory CachedAddressesData.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedAddressesData(
+      id: serializer.fromJson<String>(json['id']),
+      label: serializer.fromJson<String?>(json['label']),
+      line1: serializer.fromJson<String>(json['line1']),
+      line2: serializer.fromJson<String?>(json['line2']),
+      city: serializer.fromJson<String>(json['city']),
+      state: serializer.fromJson<String>(json['state']),
+      pincode: serializer.fromJson<String>(json['pincode']),
+      isDefault: serializer.fromJson<bool>(json['isDefault']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<String>(id),
+      'label': serializer.toJson<String?>(label),
+      'line1': serializer.toJson<String>(line1),
+      'line2': serializer.toJson<String?>(line2),
+      'city': serializer.toJson<String>(city),
+      'state': serializer.toJson<String>(state),
+      'pincode': serializer.toJson<String>(pincode),
+      'isDefault': serializer.toJson<bool>(isDefault),
+    };
+  }
+
+  CachedAddressesData copyWith({
+    String? id,
+    Value<String?> label = const Value.absent(),
+    String? line1,
+    Value<String?> line2 = const Value.absent(),
+    String? city,
+    String? state,
+    String? pincode,
+    bool? isDefault,
+  }) => CachedAddressesData(
+    id: id ?? this.id,
+    label: label.present ? label.value : this.label,
+    line1: line1 ?? this.line1,
+    line2: line2.present ? line2.value : this.line2,
+    city: city ?? this.city,
+    state: state ?? this.state,
+    pincode: pincode ?? this.pincode,
+    isDefault: isDefault ?? this.isDefault,
+  );
+  CachedAddressesData copyWithCompanion(CachedAddressesCompanion data) {
+    return CachedAddressesData(
+      id: data.id.present ? data.id.value : this.id,
+      label: data.label.present ? data.label.value : this.label,
+      line1: data.line1.present ? data.line1.value : this.line1,
+      line2: data.line2.present ? data.line2.value : this.line2,
+      city: data.city.present ? data.city.value : this.city,
+      state: data.state.present ? data.state.value : this.state,
+      pincode: data.pincode.present ? data.pincode.value : this.pincode,
+      isDefault: data.isDefault.present ? data.isDefault.value : this.isDefault,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedAddressesData(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('line1: $line1, ')
+          ..write('line2: $line2, ')
+          ..write('city: $city, ')
+          ..write('state: $state, ')
+          ..write('pincode: $pincode, ')
+          ..write('isDefault: $isDefault')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, label, line1, line2, city, state, pincode, isDefault);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedAddressesData &&
+          other.id == this.id &&
+          other.label == this.label &&
+          other.line1 == this.line1 &&
+          other.line2 == this.line2 &&
+          other.city == this.city &&
+          other.state == this.state &&
+          other.pincode == this.pincode &&
+          other.isDefault == this.isDefault);
+}
+
+class CachedAddressesCompanion extends UpdateCompanion<CachedAddressesData> {
+  final Value<String> id;
+  final Value<String?> label;
+  final Value<String> line1;
+  final Value<String?> line2;
+  final Value<String> city;
+  final Value<String> state;
+  final Value<String> pincode;
+  final Value<bool> isDefault;
+  final Value<int> rowid;
+  const CachedAddressesCompanion({
+    this.id = const Value.absent(),
+    this.label = const Value.absent(),
+    this.line1 = const Value.absent(),
+    this.line2 = const Value.absent(),
+    this.city = const Value.absent(),
+    this.state = const Value.absent(),
+    this.pincode = const Value.absent(),
+    this.isDefault = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedAddressesCompanion.insert({
+    required String id,
+    this.label = const Value.absent(),
+    required String line1,
+    this.line2 = const Value.absent(),
+    required String city,
+    required String state,
+    required String pincode,
+    required bool isDefault,
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       line1 = Value(line1),
+       city = Value(city),
+       state = Value(state),
+       pincode = Value(pincode),
+       isDefault = Value(isDefault);
+  static Insertable<CachedAddressesData> custom({
+    Expression<String>? id,
+    Expression<String>? label,
+    Expression<String>? line1,
+    Expression<String>? line2,
+    Expression<String>? city,
+    Expression<String>? state,
+    Expression<String>? pincode,
+    Expression<bool>? isDefault,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (label != null) 'label': label,
+      if (line1 != null) 'line1': line1,
+      if (line2 != null) 'line2': line2,
+      if (city != null) 'city': city,
+      if (state != null) 'state': state,
+      if (pincode != null) 'pincode': pincode,
+      if (isDefault != null) 'is_default': isDefault,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedAddressesCompanion copyWith({
+    Value<String>? id,
+    Value<String?>? label,
+    Value<String>? line1,
+    Value<String?>? line2,
+    Value<String>? city,
+    Value<String>? state,
+    Value<String>? pincode,
+    Value<bool>? isDefault,
+    Value<int>? rowid,
+  }) {
+    return CachedAddressesCompanion(
+      id: id ?? this.id,
+      label: label ?? this.label,
+      line1: line1 ?? this.line1,
+      line2: line2 ?? this.line2,
+      city: city ?? this.city,
+      state: state ?? this.state,
+      pincode: pincode ?? this.pincode,
+      isDefault: isDefault ?? this.isDefault,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (label.present) {
+      map['label'] = Variable<String>(label.value);
+    }
+    if (line1.present) {
+      map['line1'] = Variable<String>(line1.value);
+    }
+    if (line2.present) {
+      map['line2'] = Variable<String>(line2.value);
+    }
+    if (city.present) {
+      map['city'] = Variable<String>(city.value);
+    }
+    if (state.present) {
+      map['state'] = Variable<String>(state.value);
+    }
+    if (pincode.present) {
+      map['pincode'] = Variable<String>(pincode.value);
+    }
+    if (isDefault.present) {
+      map['is_default'] = Variable<bool>(isDefault.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedAddressesCompanion(')
+          ..write('id: $id, ')
+          ..write('label: $label, ')
+          ..write('line1: $line1, ')
+          ..write('line2: $line2, ')
+          ..write('city: $city, ')
+          ..write('state: $state, ')
+          ..write('pincode: $pincode, ')
+          ..write('isDefault: $isDefault, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2231,6 +3366,12 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CachedProductsTable cachedProducts = $CachedProductsTable(this);
   late final $CachedWishlistItemsTable cachedWishlistItems =
       $CachedWishlistItemsTable(this);
+  late final $CachedCartItemsTable cachedCartItems = $CachedCartItemsTable(
+    this,
+  );
+  late final $CachedAddressesTable cachedAddresses = $CachedAddressesTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2241,6 +3382,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cachedSubCategories,
     cachedProducts,
     cachedWishlistItems,
+    cachedCartItems,
+    cachedAddresses,
   ];
 }
 
@@ -3437,6 +4580,582 @@ typedef $$CachedWishlistItemsTableProcessedTableManager =
       CachedWishlistItem,
       PrefetchHooks Function()
     >;
+typedef $$CachedCartItemsTableCreateCompanionBuilder =
+    CachedCartItemsCompanion Function({
+      required String variantId,
+      Value<String?> serverId,
+      required String productId,
+      required String productName,
+      required String variantName,
+      required int currentPrice,
+      required int originalPrice,
+      required int stockQty,
+      required int quantity,
+      Value<String?> imageUrl,
+      Value<int> rowid,
+    });
+typedef $$CachedCartItemsTableUpdateCompanionBuilder =
+    CachedCartItemsCompanion Function({
+      Value<String> variantId,
+      Value<String?> serverId,
+      Value<String> productId,
+      Value<String> productName,
+      Value<String> variantName,
+      Value<int> currentPrice,
+      Value<int> originalPrice,
+      Value<int> stockQty,
+      Value<int> quantity,
+      Value<String?> imageUrl,
+      Value<int> rowid,
+    });
+
+class $$CachedCartItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedCartItemsTable> {
+  $$CachedCartItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get variantName => $composableBuilder(
+    column: $table.variantName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get currentPrice => $composableBuilder(
+    column: $table.currentPrice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get originalPrice => $composableBuilder(
+    column: $table.originalPrice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stockQty => $composableBuilder(
+    column: $table.stockQty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedCartItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedCartItemsTable> {
+  $$CachedCartItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get serverId => $composableBuilder(
+    column: $table.serverId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get variantName => $composableBuilder(
+    column: $table.variantName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get currentPrice => $composableBuilder(
+    column: $table.currentPrice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get originalPrice => $composableBuilder(
+    column: $table.originalPrice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stockQty => $composableBuilder(
+    column: $table.stockQty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get quantity => $composableBuilder(
+    column: $table.quantity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedCartItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedCartItemsTable> {
+  $$CachedCartItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get serverId =>
+      $composableBuilder(column: $table.serverId, builder: (column) => column);
+
+  GeneratedColumn<String> get productId =>
+      $composableBuilder(column: $table.productId, builder: (column) => column);
+
+  GeneratedColumn<String> get productName => $composableBuilder(
+    column: $table.productName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get variantName => $composableBuilder(
+    column: $table.variantName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get currentPrice => $composableBuilder(
+    column: $table.currentPrice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get originalPrice => $composableBuilder(
+    column: $table.originalPrice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stockQty =>
+      $composableBuilder(column: $table.stockQty, builder: (column) => column);
+
+  GeneratedColumn<int> get quantity =>
+      $composableBuilder(column: $table.quantity, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+}
+
+class $$CachedCartItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedCartItemsTable,
+          CachedCartItem,
+          $$CachedCartItemsTableFilterComposer,
+          $$CachedCartItemsTableOrderingComposer,
+          $$CachedCartItemsTableAnnotationComposer,
+          $$CachedCartItemsTableCreateCompanionBuilder,
+          $$CachedCartItemsTableUpdateCompanionBuilder,
+          (
+            CachedCartItem,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedCartItemsTable,
+              CachedCartItem
+            >,
+          ),
+          CachedCartItem,
+          PrefetchHooks Function()
+        > {
+  $$CachedCartItemsTableTableManager(
+    _$AppDatabase db,
+    $CachedCartItemsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedCartItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedCartItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedCartItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> variantId = const Value.absent(),
+                Value<String?> serverId = const Value.absent(),
+                Value<String> productId = const Value.absent(),
+                Value<String> productName = const Value.absent(),
+                Value<String> variantName = const Value.absent(),
+                Value<int> currentPrice = const Value.absent(),
+                Value<int> originalPrice = const Value.absent(),
+                Value<int> stockQty = const Value.absent(),
+                Value<int> quantity = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedCartItemsCompanion(
+                variantId: variantId,
+                serverId: serverId,
+                productId: productId,
+                productName: productName,
+                variantName: variantName,
+                currentPrice: currentPrice,
+                originalPrice: originalPrice,
+                stockQty: stockQty,
+                quantity: quantity,
+                imageUrl: imageUrl,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String variantId,
+                Value<String?> serverId = const Value.absent(),
+                required String productId,
+                required String productName,
+                required String variantName,
+                required int currentPrice,
+                required int originalPrice,
+                required int stockQty,
+                required int quantity,
+                Value<String?> imageUrl = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedCartItemsCompanion.insert(
+                variantId: variantId,
+                serverId: serverId,
+                productId: productId,
+                productName: productName,
+                variantName: variantName,
+                currentPrice: currentPrice,
+                originalPrice: originalPrice,
+                stockQty: stockQty,
+                quantity: quantity,
+                imageUrl: imageUrl,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedCartItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedCartItemsTable,
+      CachedCartItem,
+      $$CachedCartItemsTableFilterComposer,
+      $$CachedCartItemsTableOrderingComposer,
+      $$CachedCartItemsTableAnnotationComposer,
+      $$CachedCartItemsTableCreateCompanionBuilder,
+      $$CachedCartItemsTableUpdateCompanionBuilder,
+      (
+        CachedCartItem,
+        BaseReferences<_$AppDatabase, $CachedCartItemsTable, CachedCartItem>,
+      ),
+      CachedCartItem,
+      PrefetchHooks Function()
+    >;
+typedef $$CachedAddressesTableCreateCompanionBuilder =
+    CachedAddressesCompanion Function({
+      required String id,
+      Value<String?> label,
+      required String line1,
+      Value<String?> line2,
+      required String city,
+      required String state,
+      required String pincode,
+      required bool isDefault,
+      Value<int> rowid,
+    });
+typedef $$CachedAddressesTableUpdateCompanionBuilder =
+    CachedAddressesCompanion Function({
+      Value<String> id,
+      Value<String?> label,
+      Value<String> line1,
+      Value<String?> line2,
+      Value<String> city,
+      Value<String> state,
+      Value<String> pincode,
+      Value<bool> isDefault,
+      Value<int> rowid,
+    });
+
+class $$CachedAddressesTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedAddressesTable> {
+  $$CachedAddressesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get line1 => $composableBuilder(
+    column: $table.line1,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get line2 => $composableBuilder(
+    column: $table.line2,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get city => $composableBuilder(
+    column: $table.city,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get pincode => $composableBuilder(
+    column: $table.pincode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDefault => $composableBuilder(
+    column: $table.isDefault,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedAddressesTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedAddressesTable> {
+  $$CachedAddressesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get label => $composableBuilder(
+    column: $table.label,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get line1 => $composableBuilder(
+    column: $table.line1,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get line2 => $composableBuilder(
+    column: $table.line2,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get city => $composableBuilder(
+    column: $table.city,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get state => $composableBuilder(
+    column: $table.state,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get pincode => $composableBuilder(
+    column: $table.pincode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDefault => $composableBuilder(
+    column: $table.isDefault,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedAddressesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedAddressesTable> {
+  $$CachedAddressesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get label =>
+      $composableBuilder(column: $table.label, builder: (column) => column);
+
+  GeneratedColumn<String> get line1 =>
+      $composableBuilder(column: $table.line1, builder: (column) => column);
+
+  GeneratedColumn<String> get line2 =>
+      $composableBuilder(column: $table.line2, builder: (column) => column);
+
+  GeneratedColumn<String> get city =>
+      $composableBuilder(column: $table.city, builder: (column) => column);
+
+  GeneratedColumn<String> get state =>
+      $composableBuilder(column: $table.state, builder: (column) => column);
+
+  GeneratedColumn<String> get pincode =>
+      $composableBuilder(column: $table.pincode, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDefault =>
+      $composableBuilder(column: $table.isDefault, builder: (column) => column);
+}
+
+class $$CachedAddressesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedAddressesTable,
+          CachedAddressesData,
+          $$CachedAddressesTableFilterComposer,
+          $$CachedAddressesTableOrderingComposer,
+          $$CachedAddressesTableAnnotationComposer,
+          $$CachedAddressesTableCreateCompanionBuilder,
+          $$CachedAddressesTableUpdateCompanionBuilder,
+          (
+            CachedAddressesData,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedAddressesTable,
+              CachedAddressesData
+            >,
+          ),
+          CachedAddressesData,
+          PrefetchHooks Function()
+        > {
+  $$CachedAddressesTableTableManager(
+    _$AppDatabase db,
+    $CachedAddressesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedAddressesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedAddressesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedAddressesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> id = const Value.absent(),
+                Value<String?> label = const Value.absent(),
+                Value<String> line1 = const Value.absent(),
+                Value<String?> line2 = const Value.absent(),
+                Value<String> city = const Value.absent(),
+                Value<String> state = const Value.absent(),
+                Value<String> pincode = const Value.absent(),
+                Value<bool> isDefault = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedAddressesCompanion(
+                id: id,
+                label: label,
+                line1: line1,
+                line2: line2,
+                city: city,
+                state: state,
+                pincode: pincode,
+                isDefault: isDefault,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String id,
+                Value<String?> label = const Value.absent(),
+                required String line1,
+                Value<String?> line2 = const Value.absent(),
+                required String city,
+                required String state,
+                required String pincode,
+                required bool isDefault,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedAddressesCompanion.insert(
+                id: id,
+                label: label,
+                line1: line1,
+                line2: line2,
+                city: city,
+                state: state,
+                pincode: pincode,
+                isDefault: isDefault,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedAddressesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedAddressesTable,
+      CachedAddressesData,
+      $$CachedAddressesTableFilterComposer,
+      $$CachedAddressesTableOrderingComposer,
+      $$CachedAddressesTableAnnotationComposer,
+      $$CachedAddressesTableCreateCompanionBuilder,
+      $$CachedAddressesTableUpdateCompanionBuilder,
+      (
+        CachedAddressesData,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedAddressesTable,
+          CachedAddressesData
+        >,
+      ),
+      CachedAddressesData,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -3451,4 +5170,8 @@ class $AppDatabaseManager {
       $$CachedProductsTableTableManager(_db, _db.cachedProducts);
   $$CachedWishlistItemsTableTableManager get cachedWishlistItems =>
       $$CachedWishlistItemsTableTableManager(_db, _db.cachedWishlistItems);
+  $$CachedCartItemsTableTableManager get cachedCartItems =>
+      $$CachedCartItemsTableTableManager(_db, _db.cachedCartItems);
+  $$CachedAddressesTableTableManager get cachedAddresses =>
+      $$CachedAddressesTableTableManager(_db, _db.cachedAddresses);
 }

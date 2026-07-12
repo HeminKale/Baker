@@ -14,6 +14,7 @@
     "@supabase/supabase-js": "npm:@supabase/supabase-js@^2.45.0",
     "@sentry/deno": "npm:@sentry/deno@^7.120.0",
     "@upstash/ratelimit": "npm:@upstash/ratelimit@^2.0.0",
-    "@upstash/redis": "npm:@upstash/redis@^1.34.0"
+    "@upstash/redis": "npm:@upstash/redis@^1.34.0",
+    "razorpay": "npm:razorpay@^2.9.0"
   }
 }

@@ -77,18 +77,58 @@ class CachedWishlistItems extends Table {
   Set<Column> get primaryKey => {variantId};
 }
 
+/// Local cart (Milestone 3 / Phase 3, 05_cart_and_checkout.md §2). The server
+/// cart is the source of truth once logged in; this is the instant-UI layer
+/// that also holds a guest's cart before login. `serverId` is the server
+/// cart_item id (null for guest items not yet synced). Keyed by variantId so
+/// add-to-cart is an upsert.
+class CachedCartItems extends Table {
+  TextColumn get variantId => text()();
+  TextColumn get serverId => text().nullable()();
+  TextColumn get productId => text()();
+  TextColumn get productName => text()();
+  TextColumn get variantName => text()();
+  IntColumn get currentPrice => integer()();
+  IntColumn get originalPrice => integer()();
+  IntColumn get stockQty => integer()();
+  IntColumn get quantity => integer()();
+  TextColumn get imageUrl => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {variantId};
+}
+
+/// Cached delivery addresses so the checkout address selector has data offline
+/// (05_cart_and_checkout.md §6). Minimal set for Milestone 3; full management
+/// is Phase 5.
+class CachedAddresses extends Table {
+  TextColumn get id => text()();
+  TextColumn get label => text().nullable()();
+  TextColumn get line1 => text()();
+  TextColumn get line2 => text().nullable()();
+  TextColumn get city => text()();
+  TextColumn get state => text()();
+  TextColumn get pincode => text()();
+  BoolColumn get isDefault => boolean()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
 @DriftDatabase(tables: [
   AppSettings,
   CachedCategories,
   CachedSubCategories,
   CachedProducts,
   CachedWishlistItems,
+  CachedCartItems,
+  CachedAddresses,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -99,6 +139,10 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(cachedSubCategories);
             await m.createTable(cachedProducts);
             await m.createTable(cachedWishlistItems);
+          }
+          if (from < 3) {
+            await m.createTable(cachedCartItems);
+            await m.createTable(cachedAddresses);
           }
         },
       );
