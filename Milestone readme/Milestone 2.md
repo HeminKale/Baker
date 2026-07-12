@@ -1,6 +1,6 @@
 # Milestone 2 — Browse the Catalog
 
-Status: **code complete, not yet deployed.** Same delivery model as Milestone 1 — everything below was built and verified locally (`deno check`, `flutter analyze`, `flutter test`, `dart run build_runner build`) without a live Supabase project. It needs the manual steps in `Milestone 2 manual steps.md` before it runs end-to-end.
+Status: **deployed and running live.** Built and verified locally first (`deno check`, `flutter analyze`, `flutter test`, `dart run build_runner build`), then deployed by the user to a live Supabase project (`bpmtnsaebrnuoujwxfea`) and tested on an Android emulator/device per `Milestone 2 manual steps.md`. Two post-deploy layout bugs (bottom-row overflow on the product tile, missing cart-count badge) were found during live testing and fixed in the same branch — see §6.
 
 ## 1. Scope Decisions
 
@@ -84,12 +84,19 @@ Two validation passes were done after the initial build, checked against `Phase_
 - [x] Catalog data served from Drift cache when offline — "Last updated X hours ago" shown if stale
 - [x] Product images load via `cached_network_image` with a shimmer placeholder (manual implementation, no `shimmer` package)
 
-## 6. Known Gaps / Deliberate Non-Scope
+## 6. Live Testing — Bugs Found & Fixed
 
-- **No live end-to-end run** — same as Milestone 1, no Supabase credentials available in this session. Verification was `deno check`, `flutter analyze`, `flutter test`, and `build_runner` codegen only.
-- **Cart is a local, in-memory stub** — resets on app restart. Acceptable for this milestone since Cart itself (persistence, server sync, guest-cart merge) is Milestone 3's job.
-- **Search p99 latency (800ms target)** and **scroll-spy performance** are both code-complete but unverified against real data/devices — both are explicitly Phase 7 hardening tasks (k6 load test, profile-mode scroll testing) in `Phase_Plan_Technical.md`.
+After the user deployed to a live Supabase project and ran the app on an emulator/device, live testing surfaced two layout bugs not caught by `flutter analyze`/`flutter test` (neither renders a real device screen):
+
+- **Bottom-row overflow on the product tile** (`RenderFlex overflowed`, later a residual 2.3px clip) — the tile's `childAspectRatio` (0.62 → tried 0.52 → settled at 0.45 across `catalog_screen.dart`, `subcategory_products_screen.dart`, and the "You Might Also Like" row in `product_detail_screen.dart`) didn't leave enough vertical room for name + variant + price + Add-to-Cart button. Fixed by giving tiles more height and shrinking the Add to Cart button/stepper to a compact style (smaller padding, `minimumSize`, 32px icon buttons). Root cause of the *symptom* ("Add to Cart button invisible"): `Card(clipBehavior: Clip.antiAlias)` was silently clipping the overflowing button rather than erroring, which is why it disappeared instead of showing the red overflow banner once wrapped in `Flexible`.
+- **No cart-count badge** — the bottom nav's Cart icon had no numeral overlay, contradicting the "Cart 🔴" badge shown in `02_catalog_tab.md`'s mockups. Added a red count badge on `AppShell`'s cart `NavigationDestination`, driven by `localCartStubProvider`'s total quantity.
+
+## 7. Known Gaps / Deliberate Non-Scope
+
+- **Cart is a local, in-memory stub** — resets on app restart. Acceptable for this milestone since Cart itself (persistence, server sync, guest-cart merge) is Milestone 3's job. The cart-count badge added in §6 reads this stub, so it will reset too until Milestone 3 lands.
+- **Search p99 latency (800ms target)** and **scroll-spy performance** are both code-complete and now running against the live catalog, but not load-tested — both are explicitly Phase 7 hardening tasks (k6 load test, profile-mode scroll testing) in `Phase_Plan_Technical.md`.
 - **Wishlist grid screen** is not built — only the heart toggle (DB + API + optimistic Drift cache), per the Phase 2 vs. Phase 5 split in the technical plan.
 - **Voice search** stays deferred to Phase 5 (carried over from the Milestone 1 Kotlin 2.0 incompatibility note).
+- **Email OTP** works today (Supabase free tier, no Pro required) but is rate-limited; **Phone/SMS OTP** stays deferred — blocked on a third-party SMS provider account (Twilio/MessageBird/etc.), not a Supabase plan tier.
 
-See `Milestone 2 manual steps.md` for exactly what you need to run before this is live.
+See `Milestone 2 manual steps.md` for the deployment steps already carried out, and `00_common_architecture.md` §17 for cross-cutting open decisions (Porter, Brownie Points, email provider) that don't block this milestone but are tracked there.

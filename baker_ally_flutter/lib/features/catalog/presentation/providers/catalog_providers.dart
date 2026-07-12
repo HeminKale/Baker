@@ -129,35 +129,7 @@ final searchProvider = StateNotifierProvider.autoDispose<SearchNotifier, SearchS
   return SearchNotifier(ref.watch(catalogRepositoryProvider));
 });
 
-/// Add to Cart is a local-only in-memory stub this milestone -- Cart itself
-/// is Milestone 3. Powers the button<->stepper UI now; named/shaped so
-/// Milestone 3 can swap the internals for the real server-synced
-/// cartProvider without touching widget code.
-class LocalCartStubNotifier extends StateNotifier<Map<String, int>> {
-  LocalCartStubNotifier() : super(const {});
-
-  /// Returns false (and leaves state unchanged) once [maxQty] is reached, so
-  /// the caller can surface "Max stock reached" per
-  /// Planning docs/Architecture/05_cart_and_checkout.md §1.
-  bool add(String variantId, {required int maxQty}) {
-    final current = state[variantId] ?? 0;
-    if (current >= maxQty) return false;
-    state = {...state, variantId: current + 1};
-    return true;
-  }
-
-  void decrement(String variantId) {
-    final current = state[variantId] ?? 0;
-    if (current <= 1) {
-      state = {...state}..remove(variantId);
-    } else {
-      state = {...state, variantId: current - 1};
-    }
-  }
-
-  int quantityOf(String variantId) => state[variantId] ?? 0;
-}
-
-final localCartStubProvider = StateNotifierProvider<LocalCartStubNotifier, Map<String, int>>((ref) {
-  return LocalCartStubNotifier();
-});
+// Milestone 2's in-memory `localCartStubProvider` was removed in Milestone 3 --
+// the product tile + detail CTA now talk to the real server-synced
+// `cartProvider` (features/cart/presentation/providers/cart_providers.dart)
+// directly, via `addToCart(...)` in product_tile.dart.

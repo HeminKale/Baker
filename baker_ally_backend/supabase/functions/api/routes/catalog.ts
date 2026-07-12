@@ -48,7 +48,7 @@ catalogRoute.get("/categories/:id/subcategories", async (c) => {
 // variant) and "display" image (primary product-level image, else first by
 // sort_order) so list/related responses render tiles without N+1 calls --
 // see Planning docs/Architecture/02_catalog_tab.md §5 (Product Tile spec).
-async function attachDisplayInfo(productRows: (typeof products.$inferSelect)[]) {
+export async function attachDisplayInfo(productRows: (typeof products.$inferSelect)[]) {
   if (productRows.length === 0) return [];
   const productIds = productRows.map((p) => p.id);
 

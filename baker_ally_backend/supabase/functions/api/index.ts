@@ -6,6 +6,11 @@ import { authRoute } from "./routes/auth.ts";
 import { usersRoute } from "./routes/users.ts";
 import { catalogRoute } from "./routes/catalog.ts";
 import { wishlistRoute } from "./routes/wishlist.ts";
+import { cartRoute } from "./routes/cart.ts";
+import { discountsRoute } from "./routes/discounts.ts";
+import { checkoutRoute } from "./routes/checkout.ts";
+import { addressesRoute } from "./routes/addresses.ts";
+import { webhooksRoute } from "./routes/webhooks.ts";
 
 const sentryDsn = Deno.env.get("SENTRY_DSN");
 if (sentryDsn) {
@@ -22,6 +27,11 @@ app.route("/v1", authRoute);
 app.route("/v1", usersRoute);
 app.route("/v1", catalogRoute);
 app.route("/v1", wishlistRoute);
+app.route("/v1", cartRoute);
+app.route("/v1", discountsRoute);
+app.route("/v1", checkoutRoute);
+app.route("/v1", addressesRoute);
+app.route("/v1", webhooksRoute);
 
 app.onError((err, c) => {
   if (sentryDsn) Sentry.captureException(err);

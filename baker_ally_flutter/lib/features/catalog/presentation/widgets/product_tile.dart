@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../cart/presentation/providers/cart_providers.dart';
 import '../../data/models/product.dart';
 import '../../data/models/product_variant.dart';
-import '../providers/catalog_providers.dart';
 import 'badge_row.dart';
 import 'shimmer_box.dart';
 
@@ -19,7 +19,7 @@ class ProductTile extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final variant = product.displayVariant;
-    final quantity = variant == null ? 0 : ref.watch(localCartStubProvider.select((m) => m[variant.id] ?? 0));
+    final quantity = variant == null ? 0 : ref.watch(cartProvider.select((s) => s.quantityOf(variant.id)));
 
     return InkWell(
       onTap: () => context.push('/product/${product.id}'),
@@ -73,7 +73,8 @@ class ProductTile extends ConsumerWidget {
                     const SizedBox(height: 4),
                     if (variant != null) _PriceRow(variant: variant),
                     const SizedBox(height: 4),
-                    if (variant != null) _AddToCartControl(variant: variant, quantity: quantity),
+                    if (variant != null)
+                      _AddToCartControl(product: product, variant: variant, quantity: quantity),
                   ],
                 ),
               ),
@@ -112,11 +113,11 @@ class _PriceRow extends StatelessWidget {
 
 /// Button <-> stepper transition, `AnimatedSwitcher` 150ms, matching the
 /// interaction spec verbatim (02_catalog_tab.md §5 / Phase_Plan_Technical.md
-/// Phase 3.5). Backed by `localCartStubProvider` -- a local-only stand-in
-/// until Milestone 3 wires the real server cart.
+/// Phase 3.5). Backed by the real server-synced `cartProvider` (Milestone 3).
 class _AddToCartControl extends ConsumerWidget {
-  const _AddToCartControl({required this.variant, required this.quantity});
+  const _AddToCartControl({required this.product, required this.variant, required this.quantity});
 
+  final Product product;
   final ProductVariant variant;
   final int quantity;
 
@@ -144,7 +145,14 @@ class _AddToCartControl extends ConsumerWidget {
               width: double.infinity,
               child: FilledButton(
                 style: compactButtonStyle,
-                onPressed: () => addToCartStub(context, ref, variant),
+                onPressed: () => addToCart(
+                  context,
+                  ref,
+                  variant,
+                  productId: product.id,
+                  productName: product.name,
+                  imageUrl: product.displayImageUrl,
+                ),
                 child: const Text('Add to Cart'),
               ),
             )
@@ -156,7 +164,7 @@ class _AddToCartControl extends ConsumerWidget {
                   constraints: compactIconConstraints,
                   padding: EdgeInsets.zero,
                   iconSize: 18,
-                  onPressed: () => ref.read(localCartStubProvider.notifier).decrement(variant.id),
+                  onPressed: () => ref.read(cartProvider.notifier).decrement(variant.id),
                   icon: const Icon(Icons.remove),
                 ),
                 Text('$quantity'),
@@ -164,7 +172,14 @@ class _AddToCartControl extends ConsumerWidget {
                   constraints: compactIconConstraints,
                   padding: EdgeInsets.zero,
                   iconSize: 18,
-                  onPressed: () => addToCartStub(context, ref, variant),
+                  onPressed: () => addToCart(
+                    context,
+                    ref,
+                    variant,
+                    productId: product.id,
+                    productName: product.name,
+                    imageUrl: product.displayImageUrl,
+                  ),
                   icon: const Icon(Icons.add),
                 ),
               ],
@@ -173,12 +188,31 @@ class _AddToCartControl extends ConsumerWidget {
   }
 }
 
-/// Shared by the catalog tile and product detail's CTA -- caps at
-/// `variant.stockQty` and surfaces "Max stock reached", per
-/// Planning docs/Architecture/05_cart_and_checkout.md §1
-/// ("Tap + beyond stock_qty -> + button disabled, shows tooltip").
-void addToCartStub(BuildContext context, WidgetRef ref, ProductVariant variant) {
-  final added = ref.read(localCartStubProvider.notifier).add(variant.id, maxQty: variant.stockQty);
+/// Shared by the catalog tile and product detail's CTA -- adds one unit to the
+/// real server-synced cart, caps at `variant.stockQty` and surfaces "Max stock
+/// reached", per Planning docs/Architecture/05_cart_and_checkout.md §1
+/// ("Tap + beyond stock_qty -> + button disabled, shows tooltip"). Works for
+/// guests too (cart stays in Drift until login, then merges). Takes explicit
+/// product fields (not a Product) so the product detail screen -- which has a
+/// ProductDetail, not a Product -- can call it with the same helper.
+void addToCart(
+  BuildContext context,
+  WidgetRef ref,
+  ProductVariant variant, {
+  required String productId,
+  required String productName,
+  String? imageUrl,
+}) {
+  final added = ref.read(cartProvider.notifier).addItem(
+        variantId: variant.id,
+        productId: productId,
+        productName: productName,
+        variantName: variant.name,
+        currentPrice: variant.currentPrice,
+        originalPrice: variant.originalPrice,
+        stockQty: variant.stockQty,
+        imageUrl: imageUrl,
+      );
   if (!added) {
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text('Max stock reached'), duration: Duration(seconds: 1)),
