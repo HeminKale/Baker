@@ -4,6 +4,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../data/models/address.dart';
 import '../providers/checkout_providers.dart';
 
+const _addressesErrorMessage = 'Failed to load addresses. Please try again.';
+
 /// Address selector bottom sheet (05_cart_and_checkout.md §6). Radio-select an
 /// existing address or expand an inline "Add New Address" form. Milestone 3
 /// scope: list + add (edit/delete are Phase 5).
@@ -67,7 +69,7 @@ class _AddressSelectorSheetState extends ConsumerState<AddressSelectorSheet> {
                       )
                     : addressesAsync.when(
                         loading: () => const Center(child: CircularProgressIndicator()),
-                        error: (e, _) => Center(child: Text('Failed to load addresses: $e')),
+                        error: (e, _) => const Center(child: Text(_addressesErrorMessage)),
                         data: (addresses) => ListView(
                           controller: scrollController,
                           padding: const EdgeInsets.symmetric(horizontal: 16),

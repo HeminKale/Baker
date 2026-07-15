@@ -18,6 +18,9 @@ Milestone 1  Milestone 2  Milestone 3  Milestone 4  Milestone 5  Milestone 6  Mi
   Identity     Catalog      Products     Updates      Account      Panel        Launch
 ```
 
+*Milestone 5.5 (Home tab) was added after the original 7-milestone plan as a small
+addendum between Milestones 5 and 6 — see below.*
+
 ---
 
 ## What Gets Built and When
@@ -315,6 +318,45 @@ Product Detail — Reviews Section
 - Manage multiple saved addresses
 - View wishlist and add saved items to cart
 - Leave a review + star rating on a delivered order's product, see it appear on that product's page
+
+---
+
+### Milestone 5.5 — Home Tab
+
+**What you get:**
+The Home tab — currently a blank placeholder — becomes a real discovery page:
+a search bar up top, and three horizontal rows of products (Newly Launched, New
+Offers, Trending Now), each with a "See all" link to the full list.
+
+```
+Home
+
+  🔍 Search ingredients, packaging...
+
+  Newly Launched                    See all →
+  ← [Fresh Cream] [Dark Choc.] [Cake Box] →
+
+  New Offers                        See all →
+  ← [Silicon Mould] [Parchment] [Colours] →
+
+  Trending Now                      See all →
+  ← [Butter] [Vanilla] [Sprinkles] →
+```
+
+**What this enables for the business:**
+- Customers land on something useful immediately instead of a blank screen
+- Discounted items ("New Offers") get visibility without customers having to hunt for them in Catalog
+- Trending products get a second, prominent showcase beyond their category page
+
+**What you can demo at this milestone:**
+- Open the app → Home shows live product tiles instead of a placeholder
+- Tap "Add to Cart" directly from a Home tile
+- Tap "See all" on any section → full scrollable list of that section
+- Search from Home the same way you would from Catalog
+
+**Not included this round:** the notification bell shown in early mockups (needs its
+own build later) and the voice-search microphone (blocked on an Android build tooling
+issue, already deferred once before — see technical plan).
 
 ---
 

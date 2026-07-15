@@ -459,7 +459,13 @@ class _CtaBar extends ConsumerWidget {
                 style: TextStyle(color: address == null ? Colors.red : null),
               ),
               trailing: TextButton(
-                onPressed: () => AddressSelectorSheet.show(context),
+                onPressed: () {
+                  if (!ref.read(authProvider).isLoggedIn) {
+                    showLoginRequiredSheet(context);
+                    return;
+                  }
+                  AddressSelectorSheet.show(context);
+                },
                 child: Text(address == null ? 'Add' : 'Change'),
               ),
             ),

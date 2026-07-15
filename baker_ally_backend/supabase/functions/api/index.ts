@@ -13,6 +13,7 @@ import { addressesRoute } from "./routes/addresses.ts";
 import { webhooksRoute } from "./routes/webhooks.ts";
 import { ordersRoute } from "./routes/orders.ts";
 import { orderAgainRoute } from "./routes/order-again.ts";
+import { homeRoute } from "./routes/home.ts";
 
 const sentryDsn = Deno.env.get("SENTRY_DSN");
 if (sentryDsn) {
@@ -36,11 +37,12 @@ app.route("/v1", addressesRoute);
 app.route("/v1", webhooksRoute);
 app.route("/v1", ordersRoute);
 app.route("/v1", orderAgainRoute);
+app.route("/v1", homeRoute);
 
 app.onError((err, c) => {
   if (sentryDsn) Sentry.captureException(err);
   console.error(err);
-  return c.json({ error: { code: "INTERNAL_ERROR", message: "Internal server error" } }, 500);
+  return c.json({ error: { code: "INTERNAL_ERROR", message: "Something went wrong" } }, 500);
 });
 
 Deno.serve(app.fetch);

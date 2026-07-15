@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../features/auth/presentation/auth_provider.dart';
 import '../../features/cart/presentation/providers/cart_providers.dart';
 import '../../features/checkout/presentation/providers/checkout_providers.dart';
+import '../../features/checkout/presentation/widgets/address_selector_sheet.dart';
 import '../../features/profile/presentation/providers/profile_providers.dart';
 import '../../features/profile/presentation/widgets/profile_overlay_sheet.dart';
 
@@ -97,6 +98,12 @@ class _TopBar extends ConsumerWidget {
   }
 }
 
+/// Tap opens the existing checkout AddressSelectorSheet (05_cart_and_checkout.md
+/// §6), reused as-is (01_home_tab.md §3). Not a fully wired global address
+/// switcher this milestone -- `selectedAddressProvider` is checkout-scoped
+/// state, so a pick here just changes what checkout defaults to; it prefers
+/// that selection when present, otherwise falls back to showing the account's
+/// default/first address.
 class _DefaultAddressLabel extends ConsumerWidget {
   const _DefaultAddressLabel();
 
@@ -105,24 +112,32 @@ class _DefaultAddressLabel extends ConsumerWidget {
     final isLoggedIn = ref.watch(authProvider.select((s) => s.isLoggedIn));
     if (!isLoggedIn) return const SizedBox.shrink();
 
+    final selected = ref.watch(selectedAddressProvider);
     final addressesAsync = ref.watch(addressesProvider);
-    return addressesAsync.maybeWhen(
-      data: (addresses) {
-        if (addresses.isEmpty) return const SizedBox.shrink();
-        final def = addresses.where((a) => a.isDefault);
-        final address = def.isNotEmpty ? def.first : addresses.first;
-        return Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Icon(Icons.location_on_outlined, size: 16),
-            const SizedBox(width: 4),
-            Flexible(
-              child: Text(address.shortLine, maxLines: 1, overflow: TextOverflow.ellipsis),
-            ),
-          ],
-        );
-      },
-      orElse: () => const SizedBox.shrink(),
+    final label = selected != null
+        ? selected.shortLine
+        : addressesAsync.maybeWhen(
+            data: (addresses) {
+              if (addresses.isEmpty) return null;
+              final def = addresses.where((a) => a.isDefault);
+              return (def.isNotEmpty ? def.first : addresses.first).shortLine;
+            },
+            orElse: () => null,
+          );
+
+    if (label == null) return const SizedBox.shrink();
+
+    return InkWell(
+      onTap: () => AddressSelectorSheet.show(context),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          const Icon(Icons.location_on_outlined, size: 16),
+          const SizedBox(width: 4),
+          Flexible(child: Text(label, maxLines: 1, overflow: TextOverflow.ellipsis)),
+          const Icon(Icons.keyboard_arrow_down, size: 16),
+        ],
+      ),
     );
   }
 }

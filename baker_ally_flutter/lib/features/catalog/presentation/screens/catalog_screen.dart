@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/search_results_grid.dart';
 import '../../data/models/category.dart';
 import '../providers/catalog_providers.dart';
-import '../widgets/product_tile.dart';
 import '../widgets/subcategory_tile.dart';
 
 /// Level 1 -- single vertical scroll, bold non-tappable category headings,
@@ -55,7 +55,7 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
       ),
       // Search results replace the screen content while active, per
       // 00_common_architecture.md §2 "Search behaviour".
-      body: _searchExpanded ? const _CatalogSearchResults() : const _CatalogBody(),
+      body: _searchExpanded ? const SearchResultsGrid() : const _CatalogBody(),
     );
   }
 }
@@ -131,43 +131,6 @@ class _CategorySection extends ConsumerWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CatalogSearchResults extends ConsumerWidget {
-  const _CatalogSearchResults();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final search = ref.watch(searchProvider);
-
-    if (search.query.trim().isEmpty) {
-      return const Center(child: Text('Type to search products'));
-    }
-    if (search.isLoading) {
-      return const Center(child: CircularProgressIndicator());
-    }
-    if (search.results.isEmpty) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Text('No results for "${search.query}"\nTry a different spelling or browse categories',
-              textAlign: TextAlign.center),
-        ),
-      );
-    }
-
-    return GridView.builder(
-      padding: const EdgeInsets.all(12),
-      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: 2,
-        mainAxisSpacing: 8,
-        crossAxisSpacing: 8,
-        childAspectRatio: 0.45,
-      ),
-      itemCount: search.results.length,
-      itemBuilder: (context, index) => ProductTile(product: search.results[index]),
     );
   }
 }

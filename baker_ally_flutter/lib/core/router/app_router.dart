@@ -14,6 +14,9 @@ import '../../features/catalog/presentation/screens/subcategory_products_screen.
 import '../../features/checkout/data/models/address.dart';
 import '../../features/checkout/presentation/screens/checkout_screen.dart';
 import '../../features/checkout/presentation/screens/order_confirmation_screen.dart';
+import '../../features/home/data/models/home_sections.dart';
+import '../../features/home/presentation/screens/home_screen.dart';
+import '../../features/home/presentation/screens/home_section_screen.dart';
 import '../../features/order_again/presentation/screens/order_again_screen.dart';
 import '../../features/orders/presentation/screens/order_detail_screen.dart';
 import '../../features/orders/presentation/screens/order_history_screen.dart';
@@ -95,7 +98,14 @@ final routerProvider = Provider<GoRouter>((ref) {
             AppShell(navigationShell: navigationShell),
         branches: [
           StatefulShellBranch(routes: [
-            GoRoute(path: '/', builder: (c, s) => const PlaceholderScreen(title: 'Home')),
+            GoRoute(path: '/', builder: (c, s) => const HomeScreen()),
+            // Sibling inside the Home branch so the bottom nav stays visible
+            // on "See all" (same treatment as Catalog's Level 2/3 routes).
+            GoRoute(
+              path: '/home/section/:slug',
+              builder: (c, s) =>
+                  HomeSectionScreen(section: homeSectionFromSlug(s.pathParameters['slug']!)),
+            ),
           ]),
           StatefulShellBranch(routes: [
             GoRoute(path: '/catalog', builder: (c, s) => const CatalogScreen()),

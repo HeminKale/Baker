@@ -3926,6 +3926,795 @@ class CachedOrdersCompanion extends UpdateCompanion<CachedOrder> {
   }
 }
 
+class $CachedHomeSectionsTable extends CachedHomeSections
+    with TableInfo<$CachedHomeSectionsTable, CachedHomeSection> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedHomeSectionsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _sectionMeta = const VerificationMeta(
+    'section',
+  );
+  @override
+  late final GeneratedColumn<String> section = GeneratedColumn<String>(
+    'section',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _productIdMeta = const VerificationMeta(
+    'productId',
+  );
+  @override
+  late final GeneratedColumn<String> productId = GeneratedColumn<String>(
+    'product_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _subCategoryIdMeta = const VerificationMeta(
+    'subCategoryId',
+  );
+  @override
+  late final GeneratedColumn<String> subCategoryId = GeneratedColumn<String>(
+    'sub_category_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _nameMeta = const VerificationMeta('name');
+  @override
+  late final GeneratedColumn<String> name = GeneratedColumn<String>(
+    'name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isTrendingMeta = const VerificationMeta(
+    'isTrending',
+  );
+  @override
+  late final GeneratedColumn<bool> isTrending = GeneratedColumn<bool>(
+    'is_trending',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_trending" IN (0, 1))',
+    ),
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _variantIdMeta = const VerificationMeta(
+    'variantId',
+  );
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+    'variant_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _variantNameMeta = const VerificationMeta(
+    'variantName',
+  );
+  @override
+  late final GeneratedColumn<String> variantName = GeneratedColumn<String>(
+    'variant_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _originalPriceMeta = const VerificationMeta(
+    'originalPrice',
+  );
+  @override
+  late final GeneratedColumn<int> originalPrice = GeneratedColumn<int>(
+    'original_price',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _currentPriceMeta = const VerificationMeta(
+    'currentPrice',
+  );
+  @override
+  late final GeneratedColumn<int> currentPrice = GeneratedColumn<int>(
+    'current_price',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _stockQtyMeta = const VerificationMeta(
+    'stockQty',
+  );
+  @override
+  late final GeneratedColumn<int> stockQty = GeneratedColumn<int>(
+    'stock_qty',
+    aliasedName,
+    true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _imageUrlMeta = const VerificationMeta(
+    'imageUrl',
+  );
+  @override
+  late final GeneratedColumn<String> imageUrl = GeneratedColumn<String>(
+    'image_url',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    section,
+    productId,
+    subCategoryId,
+    name,
+    isTrending,
+    createdAt,
+    sortOrder,
+    variantId,
+    variantName,
+    originalPrice,
+    currentPrice,
+    stockQty,
+    imageUrl,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_home_sections';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedHomeSection> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('section')) {
+      context.handle(
+        _sectionMeta,
+        section.isAcceptableOrUnknown(data['section']!, _sectionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sectionMeta);
+    }
+    if (data.containsKey('product_id')) {
+      context.handle(
+        _productIdMeta,
+        productId.isAcceptableOrUnknown(data['product_id']!, _productIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_productIdMeta);
+    }
+    if (data.containsKey('sub_category_id')) {
+      context.handle(
+        _subCategoryIdMeta,
+        subCategoryId.isAcceptableOrUnknown(
+          data['sub_category_id']!,
+          _subCategoryIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_subCategoryIdMeta);
+    }
+    if (data.containsKey('name')) {
+      context.handle(
+        _nameMeta,
+        name.isAcceptableOrUnknown(data['name']!, _nameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_nameMeta);
+    }
+    if (data.containsKey('is_trending')) {
+      context.handle(
+        _isTrendingMeta,
+        isTrending.isAcceptableOrUnknown(data['is_trending']!, _isTrendingMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_isTrendingMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_createdAtMeta);
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sortOrderMeta);
+    }
+    if (data.containsKey('variant_id')) {
+      context.handle(
+        _variantIdMeta,
+        variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta),
+      );
+    }
+    if (data.containsKey('variant_name')) {
+      context.handle(
+        _variantNameMeta,
+        variantName.isAcceptableOrUnknown(
+          data['variant_name']!,
+          _variantNameMeta,
+        ),
+      );
+    }
+    if (data.containsKey('original_price')) {
+      context.handle(
+        _originalPriceMeta,
+        originalPrice.isAcceptableOrUnknown(
+          data['original_price']!,
+          _originalPriceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('current_price')) {
+      context.handle(
+        _currentPriceMeta,
+        currentPrice.isAcceptableOrUnknown(
+          data['current_price']!,
+          _currentPriceMeta,
+        ),
+      );
+    }
+    if (data.containsKey('stock_qty')) {
+      context.handle(
+        _stockQtyMeta,
+        stockQty.isAcceptableOrUnknown(data['stock_qty']!, _stockQtyMeta),
+      );
+    }
+    if (data.containsKey('image_url')) {
+      context.handle(
+        _imageUrlMeta,
+        imageUrl.isAcceptableOrUnknown(data['image_url']!, _imageUrlMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {section, productId};
+  @override
+  CachedHomeSection map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedHomeSection(
+      section: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}section'],
+      )!,
+      productId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}product_id'],
+      )!,
+      subCategoryId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}sub_category_id'],
+      )!,
+      name: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}name'],
+      )!,
+      isTrending: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_trending'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      variantId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_id'],
+      ),
+      variantName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_name'],
+      ),
+      originalPrice: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}original_price'],
+      ),
+      currentPrice: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}current_price'],
+      ),
+      stockQty: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}stock_qty'],
+      ),
+      imageUrl: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}image_url'],
+      ),
+    );
+  }
+
+  @override
+  $CachedHomeSectionsTable createAlias(String alias) {
+    return $CachedHomeSectionsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedHomeSection extends DataClass
+    implements Insertable<CachedHomeSection> {
+  final String section;
+  final String productId;
+  final String subCategoryId;
+  final String name;
+  final bool isTrending;
+  final DateTime createdAt;
+  final int sortOrder;
+  final String? variantId;
+  final String? variantName;
+  final int? originalPrice;
+  final int? currentPrice;
+  final int? stockQty;
+  final String? imageUrl;
+  const CachedHomeSection({
+    required this.section,
+    required this.productId,
+    required this.subCategoryId,
+    required this.name,
+    required this.isTrending,
+    required this.createdAt,
+    required this.sortOrder,
+    this.variantId,
+    this.variantName,
+    this.originalPrice,
+    this.currentPrice,
+    this.stockQty,
+    this.imageUrl,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['section'] = Variable<String>(section);
+    map['product_id'] = Variable<String>(productId);
+    map['sub_category_id'] = Variable<String>(subCategoryId);
+    map['name'] = Variable<String>(name);
+    map['is_trending'] = Variable<bool>(isTrending);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    map['sort_order'] = Variable<int>(sortOrder);
+    if (!nullToAbsent || variantId != null) {
+      map['variant_id'] = Variable<String>(variantId);
+    }
+    if (!nullToAbsent || variantName != null) {
+      map['variant_name'] = Variable<String>(variantName);
+    }
+    if (!nullToAbsent || originalPrice != null) {
+      map['original_price'] = Variable<int>(originalPrice);
+    }
+    if (!nullToAbsent || currentPrice != null) {
+      map['current_price'] = Variable<int>(currentPrice);
+    }
+    if (!nullToAbsent || stockQty != null) {
+      map['stock_qty'] = Variable<int>(stockQty);
+    }
+    if (!nullToAbsent || imageUrl != null) {
+      map['image_url'] = Variable<String>(imageUrl);
+    }
+    return map;
+  }
+
+  CachedHomeSectionsCompanion toCompanion(bool nullToAbsent) {
+    return CachedHomeSectionsCompanion(
+      section: Value(section),
+      productId: Value(productId),
+      subCategoryId: Value(subCategoryId),
+      name: Value(name),
+      isTrending: Value(isTrending),
+      createdAt: Value(createdAt),
+      sortOrder: Value(sortOrder),
+      variantId: variantId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantId),
+      variantName: variantName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(variantName),
+      originalPrice: originalPrice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(originalPrice),
+      currentPrice: currentPrice == null && nullToAbsent
+          ? const Value.absent()
+          : Value(currentPrice),
+      stockQty: stockQty == null && nullToAbsent
+          ? const Value.absent()
+          : Value(stockQty),
+      imageUrl: imageUrl == null && nullToAbsent
+          ? const Value.absent()
+          : Value(imageUrl),
+    );
+  }
+
+  factory CachedHomeSection.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedHomeSection(
+      section: serializer.fromJson<String>(json['section']),
+      productId: serializer.fromJson<String>(json['productId']),
+      subCategoryId: serializer.fromJson<String>(json['subCategoryId']),
+      name: serializer.fromJson<String>(json['name']),
+      isTrending: serializer.fromJson<bool>(json['isTrending']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      variantId: serializer.fromJson<String?>(json['variantId']),
+      variantName: serializer.fromJson<String?>(json['variantName']),
+      originalPrice: serializer.fromJson<int?>(json['originalPrice']),
+      currentPrice: serializer.fromJson<int?>(json['currentPrice']),
+      stockQty: serializer.fromJson<int?>(json['stockQty']),
+      imageUrl: serializer.fromJson<String?>(json['imageUrl']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'section': serializer.toJson<String>(section),
+      'productId': serializer.toJson<String>(productId),
+      'subCategoryId': serializer.toJson<String>(subCategoryId),
+      'name': serializer.toJson<String>(name),
+      'isTrending': serializer.toJson<bool>(isTrending),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'variantId': serializer.toJson<String?>(variantId),
+      'variantName': serializer.toJson<String?>(variantName),
+      'originalPrice': serializer.toJson<int?>(originalPrice),
+      'currentPrice': serializer.toJson<int?>(currentPrice),
+      'stockQty': serializer.toJson<int?>(stockQty),
+      'imageUrl': serializer.toJson<String?>(imageUrl),
+    };
+  }
+
+  CachedHomeSection copyWith({
+    String? section,
+    String? productId,
+    String? subCategoryId,
+    String? name,
+    bool? isTrending,
+    DateTime? createdAt,
+    int? sortOrder,
+    Value<String?> variantId = const Value.absent(),
+    Value<String?> variantName = const Value.absent(),
+    Value<int?> originalPrice = const Value.absent(),
+    Value<int?> currentPrice = const Value.absent(),
+    Value<int?> stockQty = const Value.absent(),
+    Value<String?> imageUrl = const Value.absent(),
+  }) => CachedHomeSection(
+    section: section ?? this.section,
+    productId: productId ?? this.productId,
+    subCategoryId: subCategoryId ?? this.subCategoryId,
+    name: name ?? this.name,
+    isTrending: isTrending ?? this.isTrending,
+    createdAt: createdAt ?? this.createdAt,
+    sortOrder: sortOrder ?? this.sortOrder,
+    variantId: variantId.present ? variantId.value : this.variantId,
+    variantName: variantName.present ? variantName.value : this.variantName,
+    originalPrice: originalPrice.present
+        ? originalPrice.value
+        : this.originalPrice,
+    currentPrice: currentPrice.present ? currentPrice.value : this.currentPrice,
+    stockQty: stockQty.present ? stockQty.value : this.stockQty,
+    imageUrl: imageUrl.present ? imageUrl.value : this.imageUrl,
+  );
+  CachedHomeSection copyWithCompanion(CachedHomeSectionsCompanion data) {
+    return CachedHomeSection(
+      section: data.section.present ? data.section.value : this.section,
+      productId: data.productId.present ? data.productId.value : this.productId,
+      subCategoryId: data.subCategoryId.present
+          ? data.subCategoryId.value
+          : this.subCategoryId,
+      name: data.name.present ? data.name.value : this.name,
+      isTrending: data.isTrending.present
+          ? data.isTrending.value
+          : this.isTrending,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+      variantName: data.variantName.present
+          ? data.variantName.value
+          : this.variantName,
+      originalPrice: data.originalPrice.present
+          ? data.originalPrice.value
+          : this.originalPrice,
+      currentPrice: data.currentPrice.present
+          ? data.currentPrice.value
+          : this.currentPrice,
+      stockQty: data.stockQty.present ? data.stockQty.value : this.stockQty,
+      imageUrl: data.imageUrl.present ? data.imageUrl.value : this.imageUrl,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedHomeSection(')
+          ..write('section: $section, ')
+          ..write('productId: $productId, ')
+          ..write('subCategoryId: $subCategoryId, ')
+          ..write('name: $name, ')
+          ..write('isTrending: $isTrending, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('variantId: $variantId, ')
+          ..write('variantName: $variantName, ')
+          ..write('originalPrice: $originalPrice, ')
+          ..write('currentPrice: $currentPrice, ')
+          ..write('stockQty: $stockQty, ')
+          ..write('imageUrl: $imageUrl')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    section,
+    productId,
+    subCategoryId,
+    name,
+    isTrending,
+    createdAt,
+    sortOrder,
+    variantId,
+    variantName,
+    originalPrice,
+    currentPrice,
+    stockQty,
+    imageUrl,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedHomeSection &&
+          other.section == this.section &&
+          other.productId == this.productId &&
+          other.subCategoryId == this.subCategoryId &&
+          other.name == this.name &&
+          other.isTrending == this.isTrending &&
+          other.createdAt == this.createdAt &&
+          other.sortOrder == this.sortOrder &&
+          other.variantId == this.variantId &&
+          other.variantName == this.variantName &&
+          other.originalPrice == this.originalPrice &&
+          other.currentPrice == this.currentPrice &&
+          other.stockQty == this.stockQty &&
+          other.imageUrl == this.imageUrl);
+}
+
+class CachedHomeSectionsCompanion extends UpdateCompanion<CachedHomeSection> {
+  final Value<String> section;
+  final Value<String> productId;
+  final Value<String> subCategoryId;
+  final Value<String> name;
+  final Value<bool> isTrending;
+  final Value<DateTime> createdAt;
+  final Value<int> sortOrder;
+  final Value<String?> variantId;
+  final Value<String?> variantName;
+  final Value<int?> originalPrice;
+  final Value<int?> currentPrice;
+  final Value<int?> stockQty;
+  final Value<String?> imageUrl;
+  final Value<int> rowid;
+  const CachedHomeSectionsCompanion({
+    this.section = const Value.absent(),
+    this.productId = const Value.absent(),
+    this.subCategoryId = const Value.absent(),
+    this.name = const Value.absent(),
+    this.isTrending = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.variantId = const Value.absent(),
+    this.variantName = const Value.absent(),
+    this.originalPrice = const Value.absent(),
+    this.currentPrice = const Value.absent(),
+    this.stockQty = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedHomeSectionsCompanion.insert({
+    required String section,
+    required String productId,
+    required String subCategoryId,
+    required String name,
+    required bool isTrending,
+    required DateTime createdAt,
+    required int sortOrder,
+    this.variantId = const Value.absent(),
+    this.variantName = const Value.absent(),
+    this.originalPrice = const Value.absent(),
+    this.currentPrice = const Value.absent(),
+    this.stockQty = const Value.absent(),
+    this.imageUrl = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : section = Value(section),
+       productId = Value(productId),
+       subCategoryId = Value(subCategoryId),
+       name = Value(name),
+       isTrending = Value(isTrending),
+       createdAt = Value(createdAt),
+       sortOrder = Value(sortOrder);
+  static Insertable<CachedHomeSection> custom({
+    Expression<String>? section,
+    Expression<String>? productId,
+    Expression<String>? subCategoryId,
+    Expression<String>? name,
+    Expression<bool>? isTrending,
+    Expression<DateTime>? createdAt,
+    Expression<int>? sortOrder,
+    Expression<String>? variantId,
+    Expression<String>? variantName,
+    Expression<int>? originalPrice,
+    Expression<int>? currentPrice,
+    Expression<int>? stockQty,
+    Expression<String>? imageUrl,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (section != null) 'section': section,
+      if (productId != null) 'product_id': productId,
+      if (subCategoryId != null) 'sub_category_id': subCategoryId,
+      if (name != null) 'name': name,
+      if (isTrending != null) 'is_trending': isTrending,
+      if (createdAt != null) 'created_at': createdAt,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (variantId != null) 'variant_id': variantId,
+      if (variantName != null) 'variant_name': variantName,
+      if (originalPrice != null) 'original_price': originalPrice,
+      if (currentPrice != null) 'current_price': currentPrice,
+      if (stockQty != null) 'stock_qty': stockQty,
+      if (imageUrl != null) 'image_url': imageUrl,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedHomeSectionsCompanion copyWith({
+    Value<String>? section,
+    Value<String>? productId,
+    Value<String>? subCategoryId,
+    Value<String>? name,
+    Value<bool>? isTrending,
+    Value<DateTime>? createdAt,
+    Value<int>? sortOrder,
+    Value<String?>? variantId,
+    Value<String?>? variantName,
+    Value<int?>? originalPrice,
+    Value<int?>? currentPrice,
+    Value<int?>? stockQty,
+    Value<String?>? imageUrl,
+    Value<int>? rowid,
+  }) {
+    return CachedHomeSectionsCompanion(
+      section: section ?? this.section,
+      productId: productId ?? this.productId,
+      subCategoryId: subCategoryId ?? this.subCategoryId,
+      name: name ?? this.name,
+      isTrending: isTrending ?? this.isTrending,
+      createdAt: createdAt ?? this.createdAt,
+      sortOrder: sortOrder ?? this.sortOrder,
+      variantId: variantId ?? this.variantId,
+      variantName: variantName ?? this.variantName,
+      originalPrice: originalPrice ?? this.originalPrice,
+      currentPrice: currentPrice ?? this.currentPrice,
+      stockQty: stockQty ?? this.stockQty,
+      imageUrl: imageUrl ?? this.imageUrl,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (section.present) {
+      map['section'] = Variable<String>(section.value);
+    }
+    if (productId.present) {
+      map['product_id'] = Variable<String>(productId.value);
+    }
+    if (subCategoryId.present) {
+      map['sub_category_id'] = Variable<String>(subCategoryId.value);
+    }
+    if (name.present) {
+      map['name'] = Variable<String>(name.value);
+    }
+    if (isTrending.present) {
+      map['is_trending'] = Variable<bool>(isTrending.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (variantName.present) {
+      map['variant_name'] = Variable<String>(variantName.value);
+    }
+    if (originalPrice.present) {
+      map['original_price'] = Variable<int>(originalPrice.value);
+    }
+    if (currentPrice.present) {
+      map['current_price'] = Variable<int>(currentPrice.value);
+    }
+    if (stockQty.present) {
+      map['stock_qty'] = Variable<int>(stockQty.value);
+    }
+    if (imageUrl.present) {
+      map['image_url'] = Variable<String>(imageUrl.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedHomeSectionsCompanion(')
+          ..write('section: $section, ')
+          ..write('productId: $productId, ')
+          ..write('subCategoryId: $subCategoryId, ')
+          ..write('name: $name, ')
+          ..write('isTrending: $isTrending, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('variantId: $variantId, ')
+          ..write('variantName: $variantName, ')
+          ..write('originalPrice: $originalPrice, ')
+          ..write('currentPrice: $currentPrice, ')
+          ..write('stockQty: $stockQty, ')
+          ..write('imageUrl: $imageUrl, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -3945,6 +4734,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $CachedOrdersTable cachedOrders = $CachedOrdersTable(this);
+  late final $CachedHomeSectionsTable cachedHomeSections =
+      $CachedHomeSectionsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -3958,6 +4749,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cachedCartItems,
     cachedAddresses,
     cachedOrders,
+    cachedHomeSections,
   ];
 }
 
@@ -6012,6 +6804,381 @@ typedef $$CachedOrdersTableProcessedTableManager =
       CachedOrder,
       PrefetchHooks Function()
     >;
+typedef $$CachedHomeSectionsTableCreateCompanionBuilder =
+    CachedHomeSectionsCompanion Function({
+      required String section,
+      required String productId,
+      required String subCategoryId,
+      required String name,
+      required bool isTrending,
+      required DateTime createdAt,
+      required int sortOrder,
+      Value<String?> variantId,
+      Value<String?> variantName,
+      Value<int?> originalPrice,
+      Value<int?> currentPrice,
+      Value<int?> stockQty,
+      Value<String?> imageUrl,
+      Value<int> rowid,
+    });
+typedef $$CachedHomeSectionsTableUpdateCompanionBuilder =
+    CachedHomeSectionsCompanion Function({
+      Value<String> section,
+      Value<String> productId,
+      Value<String> subCategoryId,
+      Value<String> name,
+      Value<bool> isTrending,
+      Value<DateTime> createdAt,
+      Value<int> sortOrder,
+      Value<String?> variantId,
+      Value<String?> variantName,
+      Value<int?> originalPrice,
+      Value<int?> currentPrice,
+      Value<int?> stockQty,
+      Value<String?> imageUrl,
+      Value<int> rowid,
+    });
+
+class $$CachedHomeSectionsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedHomeSectionsTable> {
+  $$CachedHomeSectionsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get section => $composableBuilder(
+    column: $table.section,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get subCategoryId => $composableBuilder(
+    column: $table.subCategoryId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isTrending => $composableBuilder(
+    column: $table.isTrending,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get variantName => $composableBuilder(
+    column: $table.variantName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get originalPrice => $composableBuilder(
+    column: $table.originalPrice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get currentPrice => $composableBuilder(
+    column: $table.currentPrice,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stockQty => $composableBuilder(
+    column: $table.stockQty,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedHomeSectionsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedHomeSectionsTable> {
+  $$CachedHomeSectionsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get section => $composableBuilder(
+    column: $table.section,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get productId => $composableBuilder(
+    column: $table.productId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get subCategoryId => $composableBuilder(
+    column: $table.subCategoryId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get name => $composableBuilder(
+    column: $table.name,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isTrending => $composableBuilder(
+    column: $table.isTrending,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get variantName => $composableBuilder(
+    column: $table.variantName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get originalPrice => $composableBuilder(
+    column: $table.originalPrice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get currentPrice => $composableBuilder(
+    column: $table.currentPrice,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stockQty => $composableBuilder(
+    column: $table.stockQty,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get imageUrl => $composableBuilder(
+    column: $table.imageUrl,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedHomeSectionsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedHomeSectionsTable> {
+  $$CachedHomeSectionsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get section =>
+      $composableBuilder(column: $table.section, builder: (column) => column);
+
+  GeneratedColumn<String> get productId =>
+      $composableBuilder(column: $table.productId, builder: (column) => column);
+
+  GeneratedColumn<String> get subCategoryId => $composableBuilder(
+    column: $table.subCategoryId,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get name =>
+      $composableBuilder(column: $table.name, builder: (column) => column);
+
+  GeneratedColumn<bool> get isTrending => $composableBuilder(
+    column: $table.isTrending,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+
+  GeneratedColumn<String> get variantName => $composableBuilder(
+    column: $table.variantName,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get originalPrice => $composableBuilder(
+    column: $table.originalPrice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get currentPrice => $composableBuilder(
+    column: $table.currentPrice,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stockQty =>
+      $composableBuilder(column: $table.stockQty, builder: (column) => column);
+
+  GeneratedColumn<String> get imageUrl =>
+      $composableBuilder(column: $table.imageUrl, builder: (column) => column);
+}
+
+class $$CachedHomeSectionsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedHomeSectionsTable,
+          CachedHomeSection,
+          $$CachedHomeSectionsTableFilterComposer,
+          $$CachedHomeSectionsTableOrderingComposer,
+          $$CachedHomeSectionsTableAnnotationComposer,
+          $$CachedHomeSectionsTableCreateCompanionBuilder,
+          $$CachedHomeSectionsTableUpdateCompanionBuilder,
+          (
+            CachedHomeSection,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedHomeSectionsTable,
+              CachedHomeSection
+            >,
+          ),
+          CachedHomeSection,
+          PrefetchHooks Function()
+        > {
+  $$CachedHomeSectionsTableTableManager(
+    _$AppDatabase db,
+    $CachedHomeSectionsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedHomeSectionsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$CachedHomeSectionsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$CachedHomeSectionsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> section = const Value.absent(),
+                Value<String> productId = const Value.absent(),
+                Value<String> subCategoryId = const Value.absent(),
+                Value<String> name = const Value.absent(),
+                Value<bool> isTrending = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<String?> variantId = const Value.absent(),
+                Value<String?> variantName = const Value.absent(),
+                Value<int?> originalPrice = const Value.absent(),
+                Value<int?> currentPrice = const Value.absent(),
+                Value<int?> stockQty = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedHomeSectionsCompanion(
+                section: section,
+                productId: productId,
+                subCategoryId: subCategoryId,
+                name: name,
+                isTrending: isTrending,
+                createdAt: createdAt,
+                sortOrder: sortOrder,
+                variantId: variantId,
+                variantName: variantName,
+                originalPrice: originalPrice,
+                currentPrice: currentPrice,
+                stockQty: stockQty,
+                imageUrl: imageUrl,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String section,
+                required String productId,
+                required String subCategoryId,
+                required String name,
+                required bool isTrending,
+                required DateTime createdAt,
+                required int sortOrder,
+                Value<String?> variantId = const Value.absent(),
+                Value<String?> variantName = const Value.absent(),
+                Value<int?> originalPrice = const Value.absent(),
+                Value<int?> currentPrice = const Value.absent(),
+                Value<int?> stockQty = const Value.absent(),
+                Value<String?> imageUrl = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedHomeSectionsCompanion.insert(
+                section: section,
+                productId: productId,
+                subCategoryId: subCategoryId,
+                name: name,
+                isTrending: isTrending,
+                createdAt: createdAt,
+                sortOrder: sortOrder,
+                variantId: variantId,
+                variantName: variantName,
+                originalPrice: originalPrice,
+                currentPrice: currentPrice,
+                stockQty: stockQty,
+                imageUrl: imageUrl,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedHomeSectionsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedHomeSectionsTable,
+      CachedHomeSection,
+      $$CachedHomeSectionsTableFilterComposer,
+      $$CachedHomeSectionsTableOrderingComposer,
+      $$CachedHomeSectionsTableAnnotationComposer,
+      $$CachedHomeSectionsTableCreateCompanionBuilder,
+      $$CachedHomeSectionsTableUpdateCompanionBuilder,
+      (
+        CachedHomeSection,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedHomeSectionsTable,
+          CachedHomeSection
+        >,
+      ),
+      CachedHomeSection,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -6032,4 +7199,6 @@ class $AppDatabaseManager {
       $$CachedAddressesTableTableManager(_db, _db.cachedAddresses);
   $$CachedOrdersTableTableManager get cachedOrders =>
       $$CachedOrdersTableTableManager(_db, _db.cachedOrders);
+  $$CachedHomeSectionsTableTableManager get cachedHomeSections =>
+      $$CachedHomeSectionsTableTableManager(_db, _db.cachedHomeSections);
 }
