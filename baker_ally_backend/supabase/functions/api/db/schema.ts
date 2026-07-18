@@ -140,6 +140,7 @@ export const wishlists = pgTable("wishlists", {
     .notNull()
     .references(() => productVariants.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  lastNotifiedAt: timestamp("last_notified_at", { withTimezone: true }),
 });
 
 // Mirrors migrations/014-021 -- cart + discounts + orders (Milestone 3 / Phase 3).

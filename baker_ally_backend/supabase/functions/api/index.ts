@@ -1,4 +1,5 @@
 import { Hono } from "npm:hono";
+import { cors } from "npm:hono/cors";
 import * as Sentry from "npm:@sentry/deno";
 
 import { healthRoute } from "./routes/health.ts";
@@ -24,6 +25,14 @@ if (sentryDsn) {
 // at https://<ref>.supabase.co/functions/v1/api/v1/... -- Flutter's
 // API_BASE_URL points at the `.../api` part.
 const app = new Hono().basePath("/api");
+
+// Only the admin panel routes are ever called from a browser (Flutter never
+// triggers a CORS preflight) -- explicit origin allowlist since these routes
+// carry real bearer tokens, not `*`.
+const adminWebOrigin = Deno.env.get("ADMIN_WEB_ORIGIN");
+if (adminWebOrigin) {
+  app.use("/v1/admin/*", cors({ origin: adminWebOrigin, allowHeaders: ["Authorization", "Content-Type"] }));
+}
 
 app.route("/v1", healthRoute);
 app.route("/v1", authRoute);
