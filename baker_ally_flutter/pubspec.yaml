@@ -62,6 +62,10 @@ dependencies:
   firebase_crashlytics: ^4.3.5
   firebase_analytics: ^11.4.5
 
+  # Foreground push display -- Android doesn't auto-show FCM notification-type
+  # messages while the app is in the foreground (Milestone 6 / 6.5).
+  flutter_local_notifications: ^18.0.1
+
   # Analytics: Firebase Analytics (posthog_flutter removed due to Kotlin 2.0 incompatibility in Milestone 1)
 
   # Forms

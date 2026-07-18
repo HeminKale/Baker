@@ -1,7 +1,7 @@
 Extra third party dependancies
 A.  added in Phase 1
 1. Bundle name: com.chefsandbakers.app for Flutter_Create
-2. Google OAuth Client required
+2. Google OAuth Client required (Will this work only in pro version?)
 3. SMS Provider for OTP : FIrebase (NOT YET DONE)
 
 Apps Installed

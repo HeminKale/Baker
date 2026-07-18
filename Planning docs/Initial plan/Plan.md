@@ -1,6 +1,14 @@
 # Baker Ally — Full Production Stack Plan
 
 > **Superseded note (2026-07-12):** This is the original planning draft. Current source of truth is `Phase_Plan_Technical.md` + `Architecture/*.md`. One decision made since this doc was written: **no Interakt/WhatsApp Business API integration** — order-status updates are in-app notifications + Firebase push (FCM) only; Shiprocket sends its own WhatsApp/SMS delivery updates independently. All "WhatsApp"/"Interakt" mentions below are historical and no longer planned.
+> **Do-not-cite note (2026-07-18):** this entire document is an early draft, superseded before any milestone was built, and should not be shown externally or treated as describing current state — too much of it is now factually wrong, not just "decided differently." Specifics found in a doc-vs-code audit:
+> - **§"WhatsApp \| Interakt (locked)"** (further down) directly contradicts the superseded note above it — Interakt was cancelled, not locked. The architecture diagram near the bottom still draws Interakt as a live integration box.
+> - **"Next.js 14 (App Router)"** — the actual admin panel (Milestone 6) is built on **Next.js 16**, which has real breaking-change implications (`middleware.ts` → `proxy.ts`, async-only `cookies()`/`headers()`) not reflected anywhere in this doc.
+> - **Zod, Supabase Queues (pgmq), the in-app notification bell** — all described here as built/standard. None exist in the actual codebase: Zod validation was never adopted (routes validate manually), pgmq/background workers were never built (Phase 4 is deferred), the notification bell needs the `notifications` table which doesn't exist.
+> - **Database schema section** lists `shipments`, `notifications`, `brownie_points` tables as current — none exist. Phase 4 (Shiprocket/fulfillment) is deferred pending the Porter-vs-Shiprocket decision; Brownie Points remains a placeholder tab only.
+> - **CI/CD table** (Codemagic, Vercel auto-deploy) describes both as already operational — neither is set up as of 2026-07-18 (see `Milestone readme/18 July pending steps.md`).
+> - **API route examples** use unversioned paths (`/auth/verify`, `/admin/products`); the real API is versioned (`/v1/auth/me`, `/v1/admin/products`).
+> For a current, accurate picture, use `Phase_Plan_Technical.md`, `backend_stack.md`, `flutter_library_stack.md` (both already carry their own 2026-07-18 status notes), and the per-milestone docs in `Milestone readme/`.
 
 ## Context
 

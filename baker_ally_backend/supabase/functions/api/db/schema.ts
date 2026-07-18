@@ -200,6 +200,28 @@ export const productDiscounts = pgTable("product_discounts", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Milestone 6 / Phase 6: admin-curated "You Might Also Like" overrides.
+// Positions 1-4 and 8-10 of the recommendation list stay algorithmic;
+// positions 5-7 prefer a curated pick here if one exists for the source
+// product (routes/catalog.ts's buildRecommendations).
+export const productCrossSell = pgTable(
+  "product_cross_sell",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sourceProductId: uuid("source_product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    recommendedProductId: uuid("recommended_product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    sortOrder: integer("sort_order").notNull().default(0),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    sourceRecommendedUnique: unique().on(table.sourceProductId, table.recommendedProductId),
+  }),
+);
+
 export const orders = pgTable("orders", {
   id: uuid("id").primaryKey().defaultRandom(),
   userId: uuid("user_id")

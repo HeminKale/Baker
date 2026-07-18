@@ -1,11 +1,11 @@
 import { Hono } from "npm:hono";
 import { zValidator } from "npm:@hono/zod-validator";
 import { z } from "npm:zod";
-import { and, asc, desc, eq, inArray, notInArray, sql } from "npm:drizzle-orm";
+import { and, asc, eq, inArray, sql } from "npm:drizzle-orm";
 
 import { authMiddleware, type AuthEnv } from "../middleware/auth.ts";
 import { db } from "../lib/db.ts";
-import { attachDisplayInfo } from "./catalog.ts";
+import { buildRecommendations } from "./catalog.ts";
 import {
   cartItems,
   carts,
@@ -240,7 +240,9 @@ cartRoute.post("/cart/merge", zValidator("json", mergeSchema), async (c) => {
 
 // "You Might Also Like" (05_cart_and_checkout.md §8) -- other active products
 // from the same subcategories as the cart's variants, excluding products
-// already in the cart. Public (catalog-like data); reuses attachDisplayInfo.
+// already in the cart. Public (catalog-like data). Slotting (algorithmic +
+// admin-curated cross-sell) lives in catalog.ts's buildRecommendations,
+// shared with /products/:id/related (Milestone 6 / 6.8).
 const recommendationsSchema = z.object({
   variantIds: z.string().optional(), // comma-separated
 });
@@ -257,22 +259,9 @@ cartRoute.get("/checkout/recommendations", zValidator("query", recommendationsSc
     .where(inArray(productVariants.id, ids));
 
   const subCategoryIds = [...new Set(cartVariants.map((r) => r.subCategoryId))];
-  const excludeProductIds = [...new Set(cartVariants.map((r) => r.productId))];
+  const sourceProductIds = [...new Set(cartVariants.map((r) => r.productId))];
   if (subCategoryIds.length === 0) return c.json({ data: [] });
 
-  const rows = await db
-    .select()
-    .from(products)
-    .where(
-      and(
-        inArray(products.subCategoryId, subCategoryIds),
-        eq(products.isActive, true),
-        excludeProductIds.length ? notInArray(products.id, excludeProductIds) : undefined,
-      ),
-    )
-    .orderBy(desc(products.isTrending), desc(products.createdAt))
-    .limit(10);
-
-  const data = await attachDisplayInfo(rows);
+  const data = await buildRecommendations({ subCategoryIds, sourceProductIds });
   return c.json({ data });
 });

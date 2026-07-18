@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../cart/presentation/providers/cart_providers.dart';
+import '../../../wishlist/presentation/widgets/wishlist_heart.dart';
 import '../../data/models/product.dart';
 import '../../data/models/product_variant.dart';
 import 'badge_row.dart';
@@ -59,6 +60,19 @@ class ProductTile extends ConsumerWidget {
                         top: 4,
                         left: 4,
                         child: BadgeRow(badges: product.badges),
+                      ),
+                    if (variant != null)
+                      Positioned(
+                        top: 4,
+                        right: 4,
+                        child: WishlistHeart(
+                          variantId: variant.id,
+                          productId: product.id,
+                          productName: product.name,
+                          variantName: variant.name,
+                          currentPrice: variant.currentPrice,
+                          imageUrl: product.displayImageUrl,
+                        ),
                       ),
                   ],
                 ),

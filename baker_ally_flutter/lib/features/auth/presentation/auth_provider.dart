@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/notifications/fcm_service.dart';
 import '../../../core/providers.dart';
 import '../data/auth_repository.dart';
 
@@ -44,12 +45,13 @@ class AuthSessionState {
 }
 
 class AuthNotifier extends StateNotifier<AuthSessionState> {
-  AuthNotifier(this._repository) : super(const AuthSessionState()) {
+  AuthNotifier(this._repository, this._fcmService) : super(const AuthSessionState()) {
     _subscription = _repository.onAuthStateChange.listen((_) => _sync());
     _sync();
   }
 
   final AuthRepository _repository;
+  final FcmService _fcmService;
   late final StreamSubscription<void> _subscription;
 
   Future<void> _sync() async {
@@ -70,6 +72,7 @@ class AuthNotifier extends StateNotifier<AuthSessionState> {
     try {
       final profile = await _repository.hydrateProfile();
       state = state.copyWith(role: profile['role'] as String?, isLoading: false);
+      unawaited(_fcmService.registerAndListen());
     } catch (_) {
       // Backend unreachable -- still signed in against Supabase; role stays
       // unresolved until the next successful sync.
@@ -97,5 +100,5 @@ class AuthNotifier extends StateNotifier<AuthSessionState> {
 }
 
 final authProvider = StateNotifierProvider<AuthNotifier, AuthSessionState>((ref) {
-  return AuthNotifier(ref.watch(authRepositoryProvider));
+  return AuthNotifier(ref.watch(authRepositoryProvider), ref.watch(fcmServiceProvider));
 });

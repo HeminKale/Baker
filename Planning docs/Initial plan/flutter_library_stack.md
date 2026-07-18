@@ -2,6 +2,13 @@
 
 > Mobile app stack for iOS + Android (non-fintech/health)
 > Last updated: July 2026
+> **Implementation status note (2026-07-18):** a doc-vs-code audit found some drift between this approved stack and what's actually wired into `lib/`. Specifics, so this doc doesn't mislead a future reader:
+> - **§7 firebase_messaging / §9 Firebase Crashlytics** — code is built (`core/notifications/fcm_service.dart`) but inactive: `Firebase.initializeApp()` has never been called in `main.dart` (deliberately deferred — see `Milestone readme/Milestone 6 manual steps.md` Phase D). Nothing Firebase-based works until that's wired up.
+> - **§8 PostHog** — actually removed in Milestone 1 (Kotlin 2.0 incompatibility) and replaced on paper by Firebase Analytics per `Phase_Plan_Technical.md`'s Milestone 1 update. But Firebase Analytics has **zero calls anywhere in the code** — there is currently no analytics running at all. Building the actual `logEvent()` calls is now scoped to Phase 7.
+> - **§12 app_links** — pinned in `pubspec.yaml`, zero usage. Legitimately needed once push-notification-tap deep linking is built (Phase 4 §4.5), but inert until then.
+> - **§13 purchases_flutter (RevenueCat)** — pinned, zero usage, and no in-app-purchase/subscription feature exists anywhere in the actual product (Baker Ally sells physical baking supplies, not subscriptions). Recommend dropping this dependency rather than carrying it into a store submission — flagged in `Phase_Plan_Technical.md` Phase 7.
+> - **§14 workmanager** — removed from `pubspec.yaml` (same Kotlin 2.0 incompatibility as PostHog), consistent with `Phase_Plan_Technical.md`'s Milestone 1 update. The §17 dependency list below still shows it as approved — that list reflects original intent, not the current `pubspec.yaml`.
+> - **§17 version numbers are stale** vs. the actual `pubspec.yaml` (e.g. `envied` is `^1.3.8` there, not `^0.5.4`; `flutter_form_builder` is `^10.3.0`, not `^9.4.0`; `speech_to_text` is `^7.4.0`, not `^6.6.2`). Treat `baker_ally_flutter/pubspec.yaml` as the source of truth for versions, this doc's pins as directional only.
 
 ---
 
