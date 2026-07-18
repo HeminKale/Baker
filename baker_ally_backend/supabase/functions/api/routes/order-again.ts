@@ -1,7 +1,7 @@
 import { Hono } from "npm:hono";
 import { zValidator } from "npm:@hono/zod-validator";
 import { z } from "npm:zod";
-import { and, desc, eq, inArray, notInArray, sql } from "npm:drizzle-orm";
+import { and, desc, eq, gte, inArray, lt, notInArray, sql } from "npm:drizzle-orm";
 
 import { authMiddleware, type AuthEnv } from "../middleware/auth.ts";
 import { db } from "../lib/db.ts";
@@ -114,6 +114,11 @@ orderAgainRoute.get("/order-again/frequently-bought", async (c) => {
 const previouslyBoughtQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(50).default(20),
+  // Matched against the order-time-denormalized productName/variantName on
+  // orderItems (not the live products table) -- no join needed, and it's
+  // what the user actually bought even if the product was later renamed.
+  search: z.string().min(1).max(200).optional(),
+  month: z.string().regex(/^\d{4}-(0[1-9]|1[0-2])$/, "month must be YYYY-MM").optional(),
 });
 
 orderAgainRoute.get(
@@ -121,8 +126,19 @@ orderAgainRoute.get(
   zValidator("query", previouslyBoughtQuerySchema),
   async (c) => {
     const authUser = c.get("user");
-    const { page, limit } = c.req.valid("query");
+    const { page, limit, search, month } = c.req.valid("query");
     const offset = (page - 1) * limit;
+
+    const conditions = [eq(orders.userId, authUser.id), notInArray(orders.status, EXCLUDED_STATUSES)];
+    if (search) {
+      const pattern = `%${search}%`;
+      conditions.push(sql`(${orderItems.productName} ILIKE ${pattern} OR ${orderItems.variantName} ILIKE ${pattern})`);
+    }
+    if (month) {
+      const [year, mon] = month.split("-").map(Number);
+      conditions.push(gte(orders.createdAt, new Date(Date.UTC(year, mon - 1, 1))));
+      conditions.push(lt(orders.createdAt, new Date(Date.UTC(year, mon, 1))));
+    }
 
     const rows = await db
       .select({
@@ -131,7 +147,7 @@ orderAgainRoute.get(
       })
       .from(orderItems)
       .innerJoin(orders, eq(orderItems.orderId, orders.id))
-      .where(and(eq(orders.userId, authUser.id), notInArray(orders.status, EXCLUDED_STATUSES)))
+      .where(and(...conditions))
       .groupBy(orderItems.variantId)
       .orderBy(desc(sql`MAX(${orders.createdAt})`))
       .limit(limit)

@@ -41,7 +41,7 @@ If Home ships empty (or nearly empty) because there isn't a good spread of recen
 ## Explicitly Not Pending (already decided, don't re-litigate)
 
 - Notification bell — deferred, needs its own `notifications` table + polling infra (Milestone 5.5.md §2)
-- Voice search mic button — deferred again, Kotlin 2.0 `speech_to_text` incompatibility (Milestone 5.5.md §2)
+- Voice search mic button — was deferred (Kotlin 2.0 `speech_to_text` incompatibility, Milestone 5.5.md §2); **since implemented 2026-07-18**, see `Voice Search.md`
 - Workmanager background refresh — deferred, same Kotlin 2.0 issue
 - New Storage buckets — none needed, Home only reads existing `products`/`productVariants`/`productImages`
 - New DB migrations — none, zero Postgres schema changes this milestone

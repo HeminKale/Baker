@@ -15,7 +15,7 @@
 2. [Full Page Layout](#2-full-page-layout)
 3. [Top Bar — What's Reused vs. Excluded](#3-top-bar--whats-reused-vs-excluded)
 4. [Search Bar](#4-search-bar)
-5. [Voice Search — Deferred](#5-voice-search--deferred)
+5. [Voice Search](#5-voice-search)
 6. [The Three Sections](#6-the-three-sections)
 7. [Section Tile Design](#7-section-tile-design)
 8. ["See All" Screens](#8-see-all-screens)
@@ -116,22 +116,27 @@ grid (reuse the widget, don't fork it).
 
 ---
 
-## 5. Voice Search — Deferred
+## 5. Voice Search
 
 The mockup and `00_common_architecture.md` §19/§21 both spec a mic button
-(`speech_to_text` package, on-device). **Not included in 5.5.**
+(`speech_to_text` package, on-device). **Not included in 5.5** — deferred twice
+(Milestone 1, then again at the 5.5 re-evaluation point) over a Kotlin 2.0 build
+incompatibility. **Implemented 2026-07-18**, outside the milestone sequence, once the
+project's Android toolchain had moved to Kotlin 2.3.20 and `speech_to_text 7.4.0`
+was confirmed to compile cleanly against it (`:app:compileDebugKotlin` verified
+locally before shipping — see `Milestone readme/Voice Search.md` for the full
+writeup).
 
-Reason: `Phase_Plan_Technical.md`'s Milestone 1 Update (2026-07-09) removed
-`speech_to_text` from the dependency tree due to a Kotlin 2.0 build incompatibility,
-and explicitly deferred it "to Phase 5" for re-evaluation. This is that
-re-evaluation point, and the call here is to **defer again**: re-litigating a native
-Android build/plugin-compatibility issue mid-milestone is a different kind of risk than
-the rest of 5.5 (which is pure Dart/UI reuse), and nothing else in 5.5 depends on it —
-the search bar works text-only with no gap in functionality, just no mic icon.
+Mic icon is a shared `VoiceSearchButton` widget
+(`shared/widgets/voice_search_button.dart`) placed as each search `TextField`'s
+`suffixIcon`, feeding recognized words into the same debounced search path the
+keyboard already uses — no separate voice codepath. It appears on **all three**
+persistent search bars (Home, Catalog, Order Again), not just Home, since Catalog
+and Order Again were later given the same always-visible bar style Home
+pioneered here (see Milestone readme/Voice Search.md).
 
-Revisit when either `speech_to_text` publishes a Kotlin-2.0-compatible release, or a
-native-platform-API alternative is evaluated (both options are already logged in
-`Phase_Plan_Technical.md`).
+No `voice_search_used` analytics event — deliberately skipped; not worth tracking
+at current volume, and easy to add later if needed.
 
 ---
 
@@ -360,7 +365,8 @@ or `CatalogRepository` — all reused verbatim.
 Explicitly **not** built in this milestone, to keep it a clean, self-contained addendum:
 
 - Notification bell (§3) — needs its own `notifications` table + polling infra
-- Voice search mic button (§5) — Kotlin 2.0 plugin incompatibility, deferred again
+- Voice search mic button (§5) — Kotlin 2.0 plugin incompatibility at the time; **since
+  implemented 2026-07-18**, see §5 and `Milestone readme/Voice Search.md`
 - Workmanager background refresh — also Kotlin-2.0-deferred per `Phase_Plan_Technical.md`;
   Home's Drift fallback is read-through only (refreshes on next successful network call),
   not proactively synced in the background

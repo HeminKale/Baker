@@ -26,6 +26,11 @@
 	<string>$(FLUTTER_BUILD_NUMBER)</string>
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
+	<!-- Voice search (speech_to_text) -->
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Baker Ally uses your microphone for voice search in the catalog.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>Baker Ally uses speech recognition to turn your voice search into text.</string>
 	<!-- Supabase Auth OAuth (Google) redirect deep link. Must also be
 	     registered in Supabase Dashboard -> Auth -> URL Configuration as a
 	     Redirect URL: com.chefsandbakers.app://login-callback -->
