@@ -1,8 +1,11 @@
+import 'dart:async';
+
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../shared/widgets/voice_search_button.dart';
 import '../../../auth/presentation/auth_provider.dart';
 import '../../../cart/presentation/providers/cart_providers.dart';
 import '../../data/models/order_again_variant.dart';
@@ -13,6 +16,19 @@ String _rupees(int paise) => '₹${(paise / 100).toStringAsFixed(0)}';
 
 const _kMonths = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 String _formatLastOrdered(DateTime dt) => 'Last: ${dt.day} ${_kMonths[dt.month - 1]}';
+
+/// "All" (null) + the last 12 calendar months, newest first, as
+/// (query-param value, chip label) pairs -- e.g. ("2026-07", "Jul 2026").
+List<(String, String)> _recentMonths() {
+  final now = DateTime.now();
+  return List.generate(12, (i) {
+    // DateTime normalizes month <= 0 by rolling back the year, so this
+    // walks Jul 2026 -> Jun 2026 -> ... -> Aug 2025 without manual math.
+    final d = DateTime(now.year, now.month - i, 1);
+    final value = '${d.year}-${d.month.toString().padLeft(2, '0')}';
+    return (value, '${_kMonths[d.month - 1]} ${d.year}');
+  });
+}
 
 /// `/order-again` (06_profile_and_account.md / Milestone 5 plan). A bottom
 /// nav tab, so the route itself stays unprotected -- but both endpoints need
@@ -55,13 +71,48 @@ class _LoggedOutPrompt extends StatelessWidget {
   }
 }
 
-class _OrderAgainBody extends ConsumerWidget {
+class _OrderAgainBody extends ConsumerStatefulWidget {
   const _OrderAgainBody();
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<_OrderAgainBody> createState() => _OrderAgainBodyState();
+}
+
+class _OrderAgainBodyState extends ConsumerState<_OrderAgainBody> {
+  final _searchController = TextEditingController();
+  final _months = _recentMonths();
+  Timer? _debounce;
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged(String value) {
+    _debounce?.cancel();
+    _debounce = Timer(const Duration(milliseconds: 400), () {
+      final notifier = ref.read(orderAgainFilterProvider.notifier);
+      notifier.state = notifier.state.copyWith(search: value);
+    });
+  }
+
+  void _onVoiceResult(String words) {
+    _searchController.text = words;
+    _onSearchChanged(words);
+  }
+
+  void _selectMonth(String? month) {
+    final notifier = ref.read(orderAgainFilterProvider.notifier);
+    notifier.state = month == null ? notifier.state.copyWith(clearMonth: true) : notifier.state.copyWith(month: month);
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final frequentAsync = ref.watch(frequentlyBoughtProvider);
     final previousAsync = ref.watch(previouslyBoughtProvider);
+    final selectedMonth = ref.watch(orderAgainFilterProvider.select((f) => f.month));
 
     return RefreshIndicator(
       onRefresh: () async {
@@ -106,14 +157,55 @@ class _OrderAgainBody extends ConsumerWidget {
           const SizedBox(height: 8),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search your previous orders...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: VoiceSearchButton(onResult: _onVoiceResult),
+                border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+                isDense: true,
+              ),
+              onChanged: _onSearchChanged,
+            ),
+          ),
+          const SizedBox(height: 8),
+          SizedBox(
+            height: 40,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              itemCount: _months.length + 1,
+              separatorBuilder: (context, index) => const SizedBox(width: 8),
+              itemBuilder: (context, index) {
+                if (index == 0) {
+                  return ChoiceChip(
+                    label: const Text('All'),
+                    selected: selectedMonth == null,
+                    onSelected: (_) => _selectMonth(null),
+                  );
+                }
+                final (value, label) = _months[index - 1];
+                return ChoiceChip(
+                  label: Text(label),
+                  selected: selectedMonth == value,
+                  onSelected: (_) => _selectMonth(value),
+                );
+              },
+            ),
+          ),
+          const SizedBox(height: 16),
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 16),
             child: previousAsync.when(
               loading: () => const Padding(
                 padding: EdgeInsets.symmetric(vertical: 16),
                 child: Center(child: CircularProgressIndicator()),
               ),
               error: (e, _) => Text('Could not load: $e'),
-              data: (items) =>
-                  items.isEmpty ? const Text('No previous orders yet') : _PreviouslyBoughtSection(firstPage: items),
+              data: (items) => items.isEmpty
+                  ? const Text('No previous orders match this filter')
+                  : _PreviouslyBoughtSection(firstPage: items),
             ),
           ),
         ],
@@ -158,7 +250,14 @@ class _PreviouslyBoughtSectionState extends ConsumerState<_PreviouslyBoughtSecti
   Future<void> _loadMore() async {
     setState(() => _loadingMore = true);
     try {
-      final items = await ref.read(orderAgainRepositoryProvider).getPreviouslyBought(page: _nextPage, limit: _limit);
+      final filter = ref.read(orderAgainFilterProvider);
+      final search = filter.search.trim();
+      final items = await ref.read(orderAgainRepositoryProvider).getPreviouslyBought(
+            page: _nextPage,
+            limit: _limit,
+            search: search.isEmpty ? null : search,
+            month: filter.month,
+          );
       setState(() {
         _extraPages.addAll(items);
         _nextPage++;

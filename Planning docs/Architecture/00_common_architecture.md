@@ -1499,7 +1499,7 @@ Key events to track across all screens:
 | `checkout_started` | cart_total, item_count | Checkout page opened |
 | `order_placed` | order_id, total, payment_method | Order confirmed |
 | `search_performed` | query, result_count | Search executed |
-| `voice_search_used` | query | Voice result accepted |
+| `voice_search_used` | query | Voice result accepted — **not implemented**; deliberately skipped when voice search shipped 2026-07-18 (not worth tracking at current volume, see `Milestone readme/Voice Search.md`) |
 
 ### Error Tracking — Sentry (Backend)
 - All Hono Edge Function errors captured

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../shared/widgets/search_results_grid.dart';
+import '../../../../shared/widgets/voice_search_button.dart';
 import '../../data/models/category.dart';
 import '../providers/catalog_providers.dart';
 import '../widgets/subcategory_tile.dart';
@@ -17,7 +18,6 @@ class CatalogScreen extends ConsumerStatefulWidget {
 }
 
 class _CatalogScreenState extends ConsumerState<CatalogScreen> {
-  bool _searchExpanded = false;
   final _searchController = TextEditingController();
 
   @override
@@ -26,36 +26,38 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     super.dispose();
   }
 
-  void _toggleSearch() {
-    setState(() => _searchExpanded = !_searchExpanded);
-    if (!_searchExpanded) {
-      _searchController.clear();
-      ref.read(searchProvider.notifier).onQueryChanged('');
-    }
+  void _onVoiceResult(String words) {
+    _searchController.text = words;
+    ref.read(searchProvider.notifier).onQueryChanged(words);
   }
 
   @override
   Widget build(BuildContext context) {
+    final query = ref.watch(searchProvider.select((s) => s.query));
+
     return Scaffold(
-      appBar: AppBar(
-        title: _searchExpanded
-            ? TextField(
-                controller: _searchController,
-                autofocus: true,
-                decoration: const InputDecoration(
-                  hintText: 'Search ingredients, packaging...',
-                  border: InputBorder.none,
-                ),
-                onChanged: (q) => ref.read(searchProvider.notifier).onQueryChanged(q),
-              )
-            : const Text('Catalog'),
-        actions: [
-          IconButton(icon: Icon(_searchExpanded ? Icons.close : Icons.search), onPressed: _toggleSearch),
+      appBar: AppBar(title: const Text('Catalog')),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+            child: TextField(
+              controller: _searchController,
+              decoration: InputDecoration(
+                hintText: 'Search ingredients, packaging...',
+                prefixIcon: const Icon(Icons.search),
+                suffixIcon: VoiceSearchButton(onResult: _onVoiceResult),
+                border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+                isDense: true,
+              ),
+              onChanged: (q) => ref.read(searchProvider.notifier).onQueryChanged(q),
+            ),
+          ),
+          // Search results replace the screen content while active, per
+          // 00_common_architecture.md §2 "Search behaviour".
+          Expanded(child: query.trim().isEmpty ? const _CatalogBody() : const SearchResultsGrid()),
         ],
       ),
-      // Search results replace the screen content while active, per
-      // 00_common_architecture.md §2 "Search behaviour".
-      body: _searchExpanded ? const SearchResultsGrid() : const _CatalogBody(),
     );
   }
 }

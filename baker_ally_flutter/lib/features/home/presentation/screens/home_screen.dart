@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../../shared/widgets/search_results_grid.dart';
+import '../../../../shared/widgets/voice_search_button.dart';
 import '../../../catalog/data/models/product.dart';
 import '../../../catalog/presentation/providers/catalog_providers.dart';
 import '../../../catalog/presentation/widgets/product_tile.dart';
@@ -29,6 +30,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     super.dispose();
   }
 
+  void _onVoiceResult(String words) {
+    _searchController.text = words;
+    ref.read(searchProvider.notifier).onQueryChanged(words);
+  }
+
   @override
   Widget build(BuildContext context) {
     final query = ref.watch(searchProvider.select((s) => s.query));
@@ -42,10 +48,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
               child: TextField(
                 controller: _searchController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   hintText: 'Search ingredients, packaging...',
-                  prefixIcon: Icon(Icons.search),
-                  border: OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: VoiceSearchButton(onResult: _onVoiceResult),
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
                   isDense: true,
                 ),
                 onChanged: (q) => ref.read(searchProvider.notifier).onQueryChanged(q),

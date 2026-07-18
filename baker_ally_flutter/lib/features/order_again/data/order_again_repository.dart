@@ -18,10 +18,20 @@ class OrderAgainRepository {
         .toList();
   }
 
-  Future<List<PreviouslyBoughtItem>> getPreviouslyBought({int page = 1, int limit = 20}) async {
+  Future<List<PreviouslyBoughtItem>> getPreviouslyBought({
+    int page = 1,
+    int limit = 20,
+    String? search,
+    String? month,
+  }) async {
     final response = await _dio.get<Map<String, dynamic>>(
       '/v1/order-again/previously-bought',
-      queryParameters: {'page': page, 'limit': limit},
+      queryParameters: {
+        'page': page,
+        'limit': limit,
+        if (search != null && search.isNotEmpty) 'search': search,
+        if (month != null) 'month': month,
+      },
     );
     return (response.data!['data'] as List)
         .map((e) => PreviouslyBoughtItem.fromJson(e as Map<String, dynamic>))

@@ -15,6 +15,11 @@
 - **No Interakt / WhatsApp Business API integration.** Customer order-status communication is **in-app notifications + FCM push only** (Phase 4 §4.4-4.6). Shiprocket sends its own WhatsApp/SMS delivery updates directly under its own account — Baker Ally doesn't build or pay for a WhatsApp Business API for this.
 - **Phase 4 (Orders & Fulfillment / Shiprocket) is deferred** until the Porter vs. Shiprocket delivery-partner decision is made. **Phase 5 (Account & Discovery) is being built next**, pulled forward ahead of Phase 4 — this requires pulling a slim version of §4.7's order-listing endpoints forward into Phase 5, and a scope decision on Reviews & Ratings eligibility (§5.8), since that depends on an order reaching `delivered` status, which normally happens via Phase 4. See the Milestone 5 build writeup once built.
 
+**Voice Search Update (July 18, 2026):**
+- **`speech_to_text` re-added and shipped.** The Milestone 1 Kotlin 2.0 incompatibility that removed it no longer applies — the project's Android toolchain is now on Kotlin 2.3.20, and `speech_to_text 7.4.0` was confirmed to compile cleanly (`:app:compileDebugKotlin` + manifest merge both verified) before shipping.
+- Mic button now live on all three persistent search bars (Home, Catalog, Order Again), not just Home — see `01_home_tab.md` §5 and `Milestone readme/Voice Search.md` for the full writeup.
+- No `voice_search_used` analytics event — deliberately skipped, not worth tracking at current volume.
+
 ---
 
 ## Overview
@@ -572,9 +577,10 @@ from an actual Catalog browse of the same product). Schema bump v4 → v5, addit
 ### Explicitly deferred (not built this phase)
 - Notification bell shown in the mockup — no `notifications` table or polling infra
   exists yet (`00_common_architecture.md` §12); its own future phase
-- Voice search mic button — `speech_to_text` still blocked on the Kotlin 2.0
-  incompatibility logged in this doc's Milestone 1 Update; re-evaluate when a
-  compatible release or platform-API alternative is confirmed
+- Voice search mic button — `speech_to_text` was still blocked on the Kotlin 2.0
+  incompatibility logged in this doc's Milestone 1 Update at the time of this phase;
+  **since implemented 2026-07-18** across all three search bars, see the Voice Search
+  Update above and `Milestone readme/Voice Search.md`
 - Workmanager background refresh — same Kotlin 2.0 deferral; Home's Drift fallback is
   read-through only, not proactively synced
 
