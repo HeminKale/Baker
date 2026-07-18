@@ -36,27 +36,29 @@ class _CatalogScreenState extends ConsumerState<CatalogScreen> {
     final query = ref.watch(searchProvider.select((s) => s.query));
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Catalog')),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
-            child: TextField(
-              controller: _searchController,
-              decoration: InputDecoration(
-                hintText: 'Search ingredients, packaging...',
-                prefixIcon: const Icon(Icons.search),
-                suffixIcon: VoiceSearchButton(onResult: _onVoiceResult),
-                border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
-                isDense: true,
+      body: SafeArea(
+        top: false,
+        child: Column(
+          children: [
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 8, 16, 8),
+              child: TextField(
+                controller: _searchController,
+                decoration: InputDecoration(
+                  hintText: 'Search ingredients, packaging...',
+                  prefixIcon: const Icon(Icons.search),
+                  suffixIcon: VoiceSearchButton(onResult: _onVoiceResult),
+                  border: const OutlineInputBorder(borderRadius: BorderRadius.all(Radius.circular(24))),
+                  isDense: true,
+                ),
+                onChanged: (q) => ref.read(searchProvider.notifier).onQueryChanged(q),
               ),
-              onChanged: (q) => ref.read(searchProvider.notifier).onQueryChanged(q),
             ),
-          ),
-          // Search results replace the screen content while active, per
-          // 00_common_architecture.md §2 "Search behaviour".
-          Expanded(child: query.trim().isEmpty ? const _CatalogBody() : const SearchResultsGrid()),
-        ],
+            // Search results replace the screen content while active, per
+            // 00_common_architecture.md §2 "Search behaviour".
+            Expanded(child: query.trim().isEmpty ? const _CatalogBody() : const SearchResultsGrid()),
+          ],
+        ),
       ),
     );
   }

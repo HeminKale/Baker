@@ -37,7 +37,7 @@ class SearchResultsGrid extends ConsumerWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 8,
         crossAxisSpacing: 8,
-        childAspectRatio: 0.45,
+        childAspectRatio: 0.6,
       ),
       itemCount: search.results.length,
       itemBuilder: (context, index) => ProductTile(product: search.results[index]),

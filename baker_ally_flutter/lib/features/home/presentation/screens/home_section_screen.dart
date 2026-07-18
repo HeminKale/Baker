@@ -83,7 +83,7 @@ class _SectionGridState extends ConsumerState<_SectionGrid> {
             crossAxisCount: 2,
             mainAxisSpacing: 8,
             crossAxisSpacing: 8,
-            childAspectRatio: 0.45,
+            childAspectRatio: 0.6,
           ),
           itemCount: items.length,
           itemBuilder: (context, index) => ProductTile(product: items[index]),

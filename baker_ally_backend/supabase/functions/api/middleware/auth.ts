@@ -25,12 +25,19 @@ export const authMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
   await next();
 });
 
-// Not attached to any route yet -- Phase 1 has no admin routes (those land in
-// Phase 6). Reads the role claim written by migrations/006's JWT hook.
-export const adminMiddleware = createMiddleware<AuthEnv>(async (c, next) => {
-  const user = c.get("user");
-  if (user.app_metadata?.role !== "admin") {
-    return c.json({ error: { code: "FORBIDDEN", message: "Admin role required" } }, 403);
-  }
-  await next();
-});
+// Reads the role claim written by migrations/6's JWT hook. Phase 6 (admin
+// panel) is the first consumer -- `requireRole("admin")` and
+// `requireRole("admin", "staff")` below gate the admin-only vs. admin-or-staff
+// route groups.
+export const requireRole = (...roles: string[]) =>
+  createMiddleware<AuthEnv>(async (c, next) => {
+    const user = c.get("user");
+    const role = user.app_metadata?.role;
+    if (!role || !roles.includes(role)) {
+      return c.json({ error: { code: "FORBIDDEN", message: "Insufficient role" } }, 403);
+    }
+    await next();
+  });
+
+export const adminMiddleware = requireRole("admin");
+export const adminOrStaffMiddleware = requireRole("admin", "staff");
