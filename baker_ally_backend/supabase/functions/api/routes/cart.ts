@@ -104,6 +104,46 @@ cartRoute.post("/cart/items", zValidator("json", addItemSchema), async (c) => {
   return c.json({ data: { items } }, 201);
 });
 
+const batchAddSchema = z.object({
+  items: z
+    .array(z.object({ variantId: z.string().uuid(), quantity: z.coerce.number().int().min(1) }))
+    .min(1)
+    .max(50),
+});
+
+// Order Again's "Add All" / "Add Selected Items" (Milestone 5 plan §Backend)
+// -- loops the same upsert-add-clamped-to-stock logic /cart/items and
+// /cart/merge already use, skipping unknown/inactive variants silently
+// rather than failing the whole batch.
+cartRoute.post("/cart/items/batch", zValidator("json", batchAddSchema), async (c) => {
+  const authUser = c.get("user");
+  const { items: itemsToAdd } = c.req.valid("json");
+
+  const variantIds = itemsToAdd.map((i) => i.variantId);
+  const variants = await db
+    .select({ id: productVariants.id, stockQty: productVariants.stockQty, isActive: productVariants.isActive })
+    .from(productVariants)
+    .where(inArray(productVariants.id, variantIds));
+  const stockById = new Map(variants.filter((v) => v.isActive).map((v) => [v.id, v.stockQty]));
+
+  const cartId = await getOrCreateCartId(authUser.id);
+
+  for (const item of itemsToAdd) {
+    const stock = stockById.get(item.variantId);
+    if (stock === undefined) continue; // unknown or inactive -- skip
+    await db
+      .insert(cartItems)
+      .values({ cartId, variantId: item.variantId, quantity: item.quantity })
+      .onConflictDoUpdate({
+        target: [cartItems.cartId, cartItems.variantId],
+        set: { quantity: sql`LEAST(${cartItems.quantity} + ${item.quantity}, ${stock})` },
+      });
+  }
+
+  const items = await loadCartItems(cartId);
+  return c.json({ data: { items } }, 201);
+});
+
 const updateItemSchema = z.object({
   quantity: z.coerce.number().int().min(0),
 });

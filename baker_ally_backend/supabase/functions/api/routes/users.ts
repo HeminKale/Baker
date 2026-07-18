@@ -32,6 +32,10 @@ const updateProfileSchema = z.object({
   fullName: z.string().min(1).max(200).optional(),
   businessName: z.string().max(200).optional(),
   gstin: z.string().max(20).optional(),
+  // Set after a direct Flutter -> Supabase Storage avatar upload
+  // (06_profile_and_account.md's Data & API table) -- phone is intentionally
+  // not editable here per that doc's Key Rules.
+  avatarUrl: z.string().url().max(500).optional(),
 });
 
 usersRoute.patch("/users/me", zValidator("json", updateProfileSchema), async (c) => {
@@ -44,6 +48,7 @@ usersRoute.patch("/users/me", zValidator("json", updateProfileSchema), async (c)
       ...(body.fullName !== undefined ? { fullName: body.fullName } : {}),
       ...(body.businessName !== undefined ? { businessName: body.businessName } : {}),
       ...(body.gstin !== undefined ? { gstin: body.gstin } : {}),
+      ...(body.avatarUrl !== undefined ? { avatarUrl: body.avatarUrl } : {}),
     })
     .where(eq(users.id, authUser.id))
     .returning();

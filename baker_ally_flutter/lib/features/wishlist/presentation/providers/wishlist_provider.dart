@@ -1,6 +1,7 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../../core/providers.dart';
+import '../../data/models/wishlist_item.dart';
 import '../../data/wishlist_repository.dart';
 
 final wishlistRepositoryProvider = Provider<WishlistRepository>((ref) {
@@ -60,4 +61,11 @@ class WishlistNotifier extends StateNotifier<Set<String>> {
 
 final wishlistIdsProvider = StateNotifierProvider<WishlistNotifier, Set<String>>((ref) {
   return WishlistNotifier(ref.watch(wishlistRepositoryProvider));
+});
+
+/// Full display data for the `/wishlist` grid screen -- autoDispose so it
+/// clears on logout/sheet-close rather than serving stale items next login
+/// (matches the `profileProvider` precedent).
+final wishlistItemsProvider = FutureProvider.autoDispose<List<WishlistItem>>((ref) async {
+  return ref.watch(wishlistRepositoryProvider).getItems();
 });

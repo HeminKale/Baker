@@ -1699,11 +1699,11 @@ Syncs:
 ```
 Architecture/
   00_common_architecture.md     ← this file
-  01_home_tab.md                ← to be created
-  02_catalog_tab.md             ← to be created
-  03_order_again_tab.md         ← to be created
+  01_home_tab.md                ← Milestone 5.5
+  02_catalog_tab.md             ← Milestone 2
+  03_order_again_tab.md         ← Milestone 5
   04_brownie_points_tab.md      ← placeholder, to be created later
-  05_cart_and_checkout.md       ← to be created
-  06_profile_and_account.md     ← to be created
+  05_cart_and_checkout.md       ← Milestone 3
+  06_profile_and_account.md     ← Milestone 5
   07_admin_web_panel.md         ← to be created
 ```

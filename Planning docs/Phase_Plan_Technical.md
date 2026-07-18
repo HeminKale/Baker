@@ -529,6 +529,66 @@ Flutter: Reviews & Ratings section on Product Detail (below You Might Also Like)
 
 ---
 
+## Phase 5.5 — Home Tab
+**Depends on:** Phase 5 complete
+**Goal:** Replace the Home placeholder with a real discovery page. Full design in
+`Planning docs/Architecture/01_home_tab.md`.
+
+### What gets built
+
+#### 5.5.1 Backend — `routes/home.ts`
+```
+GET /v1/home
+  → { data: { newlyLaunched: Product[], newOffers: Product[], trending: Product[] } }
+  → top 10 per section, same Product shape as GET /v1/products
+
+GET /v1/home/newly-launched?page=&limit=   — paginated, for "See all"
+GET /v1/home/new-offers?page=&limit=       — paginated, for "See all"
+GET /v1/home/trending?page=&limit=         — paginated, for "See all"
+```
+Newly Launched / Trending reuse `attachDisplayInfo()` from `routes/catalog.ts` verbatim.
+New Offers is queried variant-first (not via `attachDisplayInfo`'s generic display-variant
+picker) — see 01_home_tab.md §10 for why: the generic picker selects the lowest-sortOrder
+variant, which is not necessarily the discounted one.
+
+No new Postgres migrations — reuses `products` / `productVariants` / `productImages`.
+
+#### 5.5.2 Flutter — Home screen
+- `features/home/` — repository, providers, `HomeScreen` (replaces `PlaceholderScreen`),
+  `HomeSectionScreen` (generic "See all" destination, parameterized by section key)
+- Reuses `ProductTile`, `cartProvider`'s `addToCart`, and the existing `searchProvider` /
+  `CatalogRepository.search` for the always-visible search bar — no new tile widget, no
+  new search implementation
+- Address label in the top bar becomes tappable → existing `AddressSelectorSheet.show()`
+  (built for checkout in Phase 3), reused as-is
+
+#### 5.5.3 Drift caching
+New `CachedHomeSections` table, keyed by `(section, productId)` — deliberately not
+piggybacked onto `CachedProducts` (that table's `{id}`-only primary key would let a
+synthetic `categoryId: 'home:trending'` tag overwrite the real category value cached
+from an actual Catalog browse of the same product). Schema bump v4 → v5, additive
+`onUpgrade`, same mechanics as Phase 5's `CachedOrders` table.
+
+### Explicitly deferred (not built this phase)
+- Notification bell shown in the mockup — no `notifications` table or polling infra
+  exists yet (`00_common_architecture.md` §12); its own future phase
+- Voice search mic button — `speech_to_text` still blocked on the Kotlin 2.0
+  incompatibility logged in this doc's Milestone 1 Update; re-evaluate when a
+  compatible release or platform-API alternative is confirmed
+- Workmanager background refresh — same Kotlin 2.0 deferral; Home's Drift fallback is
+  read-through only, not proactively synced
+
+### Acceptance Criteria
+- [ ] Home shows three horizontal sections instead of the placeholder
+- [ ] Each tile's Add to Cart button updates the real cart (not a stub)
+- [ ] New Offers tiles always show the actual discounted price, never a full-price variant
+- [ ] "See all" opens a paginated 2-column grid for that section
+- [ ] Search bar on Home returns the same results Catalog's search would for the same query
+- [ ] Offline (no network, prior successful load exists): sections render from Drift cache
+- [ ] A section with zero qualifying products is hidden, not shown empty
+
+---
+
 ## Phase 6 — Admin Web Panel
 **Duration:** Week 11–12
 **Depends on:** Phase 3+ (needs orders to exist)

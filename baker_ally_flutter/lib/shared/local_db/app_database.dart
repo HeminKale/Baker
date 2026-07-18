@@ -115,6 +115,54 @@ class CachedAddresses extends Table {
   Set<Column> get primaryKey => {id};
 }
 
+/// Cached order history so the default "Your Orders" list has data offline
+/// (06_profile_and_account.md). Only the unfiltered page-1 list is cached --
+/// Order Status (active filter), pagination, and Receipts (paid filter) are
+/// network-only (Milestone 5 plan: "No Drift caching for ... Receipts").
+/// Order detail is deliberately NOT cached, mirroring product detail's
+/// existing not-cached precedent (00_common_architecture.md §15).
+class CachedOrders extends Table {
+  TextColumn get id => text()();
+  TextColumn get status => text()();
+  IntColumn get subtotal => integer()();
+  IntColumn get discountValue => integer()();
+  IntColumn get shippingCost => integer()();
+  IntColumn get total => integer()();
+  DateTimeColumn get createdAt => dateTime()();
+  IntColumn get itemCount => integer()();
+  TextColumn get thumbnailUrl => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {id};
+}
+
+/// Home tab cache (Milestone 5.5, 01_home_tab.md §11). Deliberately NOT
+/// piggybacked onto `CachedProducts` -- that table's primary key is `{id}`
+/// (one row per real product) and its `categoryId` column holds the
+/// product's genuine category for Catalog's own offline fallback; tagging
+/// rows with a synthetic `categoryId: 'home:trending'` would silently
+/// overwrite that real value the next time the same product is cached from
+/// an actual Catalog browse. Keyed by `(section, productId)` instead so a
+/// product can appear in multiple sections without collision.
+class CachedHomeSections extends Table {
+  TextColumn get section => text()(); // 'newlyLaunched' | 'newOffers' | 'trending'
+  TextColumn get productId => text()();
+  TextColumn get subCategoryId => text()();
+  TextColumn get name => text()();
+  BoolColumn get isTrending => boolean()();
+  DateTimeColumn get createdAt => dateTime()();
+  IntColumn get sortOrder => integer()(); // preserves section ordering on fallback read
+  TextColumn get variantId => text().nullable()();
+  TextColumn get variantName => text().nullable()();
+  IntColumn get originalPrice => integer().nullable()();
+  IntColumn get currentPrice => integer().nullable()();
+  IntColumn get stockQty => integer().nullable()();
+  TextColumn get imageUrl => text().nullable()();
+
+  @override
+  Set<Column> get primaryKey => {section, productId};
+}
+
 @DriftDatabase(tables: [
   AppSettings,
   CachedCategories,
@@ -123,12 +171,14 @@ class CachedAddresses extends Table {
   CachedWishlistItems,
   CachedCartItems,
   CachedAddresses,
+  CachedOrders,
+  CachedHomeSections,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -143,6 +193,12 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.createTable(cachedCartItems);
             await m.createTable(cachedAddresses);
+          }
+          if (from < 4) {
+            await m.createTable(cachedOrders);
+          }
+          if (from < 5) {
+            await m.createTable(cachedHomeSections);
           }
         },
       );
