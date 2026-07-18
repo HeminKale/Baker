@@ -419,6 +419,10 @@ Admin Web Panel — Order Management
 **What you get:**
 The app submitted to App Store and Play Store. Real payment keys active. The full system running in production.
 
+**Two things need your action before this milestone can start** (not engineering work — business/account setup):
+1. **Apple Developer Account** ($99/year) and **Google Play Console** ($25 one-time) — neither is purchased yet. Store submission is blocked until these exist (see `Costing.md` §10–11).
+2. **Product Reviews & Ratings decision.** This was originally scoped into Milestone 5 but wasn't built. Decide: add it as a small pre-launch addendum, or push it to a post-launch update.
+
 ```
 Launch Checklist Status
 

@@ -3,6 +3,11 @@
 > Supabase Edge Functions + TypeScript backend for Baker Ally (India, 10,000 concurrent users)
 > Last updated: July 2026
 > **Superseded note (2026-07-12):** Section 10 (WhatsApp — Interakt) is no longer planned. Order-status updates are in-app notifications + FCM push only; Shiprocket sends its own WhatsApp/SMS delivery updates independently. See `00_common_architecture.md` §12.
+> **Implementation status note (2026-07-18):** a doc-vs-code audit found a few sections describe things as built (or as central to how requests are wired) that don't match the live codebase. Specifics, so this doc doesn't mislead a future reader:
+> - **§3 Zod** — planned, never adopted. Every route in `baker_ally_backend` validates request bodies manually instead of via Zod schemas. Decision to adopt now vs. formally drop is tracked in `Phase_Plan_Technical.md` Phase 7.
+> - **§13 Supabase Queues (pgmq)** — not built. Phase 4 (Orders & Fulfillment) is deferred pending the Porter-vs-Shiprocket delivery decision, so there is no `order_events` queue and no `shipments`/`notifications` tables yet.
+> - **§14 Rate limiting** — built and live, but wired per-route (`/v1/auth/me`, catalog routes, home routes — added across Milestones 2 and 5.5) rather than as one global middleware the way the example below reads. Same protection, different shape.
+> - **§15 Sentry** — not built. No `Sentry.init` call exists anywhere in the Edge Function yet, despite this being scoped to Phase 1 in the original plan. Now explicitly scheduled for Phase 7 (Production Hardening) — see `Phase_Plan_Technical.md`.
 
 ---
 

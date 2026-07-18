@@ -5,8 +5,10 @@ import '../../../../shared/widgets/login_required_sheet.dart';
 import '../../../auth/presentation/auth_provider.dart';
 import '../providers/wishlist_provider.dart';
 
-/// Appears on the product detail page only, not on catalog grid tiles
-/// (02_catalog_tab.md §6). Optimistic toggle, login-gated.
+/// Appears on the product detail page and on catalog grid tiles (top-right of
+/// the tile image, mirroring BadgeRow's top-left placement -- Milestone 6
+/// plan §6.5, closing the gap where out-of-stock tiles had no way to
+/// wishlist/notify-me from the grid). Optimistic toggle, login-gated.
 class WishlistHeart extends ConsumerWidget {
   const WishlistHeart({
     super.key,

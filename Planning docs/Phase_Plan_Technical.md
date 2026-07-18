@@ -678,6 +678,8 @@ PATCH  /v1/admin/users/:id/role
 **Duration:** Week 13–14
 **Goal:** App Store + Play Store submission ready. Production-grade hardening.
 
+**Pre-Phase-7 audit (2026-07-18):** a doc-vs-code review found several items this phase assumed were already in place from earlier phases, but never actually got built. §7.4 and §7.5 below are corrected to build them from scratch here rather than merely "verify" or "configure alerts on" something that doesn't exist yet. See `Milestone readme/` for the milestone-by-milestone build history this audit was based on.
+
 ### What gets built
 
 #### 7.1 Performance
@@ -687,38 +689,50 @@ PATCH  /v1/admin/users/:id/role
 - API: k6 load test at 1,000 concurrent users → p99 < 800ms target
 
 #### 7.2 CI/CD
-- Codemagic configured for Flutter: builds, signs, uploads to TestFlight + Play Internal
-- Vercel auto-deploy connected to `main` branch (admin web — already works by default)
-- Supabase CLI migration step in CI pipeline before Edge Function deploy
+This is a **monorepo** (`baker_ally_flutter/`, `baker_ally_backend/`, `baker_ally_admin/` all in one repo) — every CI/CD tool below must be scoped to its own subfolder, not the repo root, or it'll try to build the wrong app.
+- Codemagic configured for Flutter: **Project directory setting = `baker_ally_flutter`** (Codemagic's equivalent of Vercel's Root Directory — repo root is not a Flutter project). Builds, signs, uploads to TestFlight + Play Internal.
+- Vercel auto-deploy connected to `main` branch (admin web) — **Root Directory already set to `baker_ally_admin`** as of the Milestone 6 deploy (see `Milestone readme/Milestone 6 manual steps.md` Phase E). Confirm the **Ignored Build Step** is set to skip rebuilds when only Flutter/backend files change, so mobile-only commits don't burn Vercel build minutes.
+- Supabase CLI migration step in CI pipeline before Edge Function deploy — **not built yet**; today migrations and `supabase functions deploy api` are both run manually from `baker_ally_backend/`. Decide whether this milestone actually needs a CI step or whether manual deploy (already working, already used for every milestone through M6) is fine to keep.
 - GitHub Actions or Codemagic: run `flutter test` on every PR
 
 #### 7.3 App Store & Play Store Setup
-- Apple Developer account — provisioning profile, App Store Connect app record
-- Google Play Console — app created, signing keystore stored in Codemagic
+- Apple Developer account ($99/year) and Google Play Console ($25 one-time) — **neither has been purchased yet** (confirmed 2026-07-18); this is a real prerequisite, not just a checklist item, and has a business-decision lead time (see Costing.md §10–11)
+- Provisioning profile, App Store Connect app record
+- Signing keystore stored in Codemagic
 - App icons, splash screens, screenshots prepared
 - Privacy policy URL (required by both stores)
 - TestFlight build distributed to internal testers
 
 #### 7.4 Production Hardening
 - Razorpay live keys set in Supabase secrets (replace test keys)
-- Rate limiting verified: `/v1/products`, `/v1/cart/checkout` limits tested
-- Sentry alerts configured: payment failure → immediate Slack/email alert
+- Rate limiting verified: `/v1/products`, `/v1/cart/checkout`, `/v1/auth/me`, `/v1/home*` limits tested (Upstash-backed `rateLimitMiddleware` — already built and live, applied per-route since Milestone 2/5.5, not globally)
+- **Sentry SDK initialization — not done in any phase so far**, despite `backend_stack.md` §15 planning it for Phase 1. `npm:@sentry/deno` has never been imported in the Edge Function. This phase must do the actual `Sentry.init(...)` + `app.onError(...)` wiring (see `backend_stack.md` §15 for the exact setup) before "alerts configured" means anything.
+- Sentry alerts configured: payment failure → immediate Slack/email alert (depends on the init above)
 - Supabase DB backups verified (Pro plan daily backups)
 - Staging → Production migration runbook written
+- **Zod request validation — planned in `backend_stack.md` §3 but never adopted; every route validates manually instead.** Decide explicitly: adopt Zod now (touches every route file) or formally drop it from the stack doc. Not launch-blocking either way, but the docs currently overstate what's implemented.
+- **Dependency cleanup**: `purchases_flutter` (RevenueCat) and `app_links` are pinned in `pubspec.yaml` with zero usage anywhere in `lib/`. RevenueCat has no matching product feature (Baker Ally sells physical goods, not subscriptions/IAP) — recommend dropping it rather than carrying dead weight into a store submission. `app_links` is legitimately needed once push-notification-tap deep linking (Phase 4 §4.5) is built — keep it, but note it's currently inert.
 
 #### 7.5 Monitoring Setup
-- PostHog events verified for all key flows (add to cart, checkout, order placed)
-- Firebase Crashlytics live — test crash triggered and verified in dashboard
-- Sentry Edge Function errors verified
+- **Analytics — build from scratch, not "verify."** `Phase_Plan_Technical.md`'s July 2026 update already replaced PostHog with Firebase Analytics, but **no analytics events exist anywhere in the Flutter code** — `firebase_analytics` is a pinned dependency with zero calls. This phase must add the actual `FirebaseAnalytics.instance.logEvent(...)` calls for the key flows (add to cart, checkout, order placed) before there's anything to verify. Requires `Firebase.initializeApp()` to be wired in `main.dart` first (see the Milestone 6 Firebase manual steps — same prerequisite blocks push notifications).
+- Firebase Crashlytics live — test crash triggered and verified in dashboard (same `Firebase.initializeApp()` prerequisite as above)
+- Sentry Edge Function errors verified (depends on §7.4's Sentry init)
 
 ### Acceptance Criteria
 - [ ] Flutter app passes App Store review guidelines checklist
 - [ ] k6 load test: p99 < 800ms at 1,000 concurrent users on `/v1/products`
 - [ ] Razorpay live payment end-to-end tested with real ₹1 transaction
 - [ ] In-app + push notifications delivered on live order flow
-- [ ] Codemagic auto-build triggers on `main` push → TestFlight upload
+- [ ] Codemagic project directory set to `baker_ally_flutter`; auto-build triggers on `main` push → TestFlight upload
+- [ ] Vercel Root Directory confirmed as `baker_ally_admin`; Ignored Build Step configured
+- [ ] Sentry SDK initialized in the Edge Function and receiving a test error
 - [ ] Crashlytics receives a test crash within 5 minutes
+- [ ] Firebase Analytics logs at least one real event for add-to-cart, checkout, and order-placed
 - [ ] All environment secrets confirmed as production values (no test keys in prod)
+- [ ] Apple Developer + Google Play Console accounts purchased and accessible
+
+### Known open decision carried into this phase
+**Product Reviews & Ratings (§5.8 above)** was documented as Milestone 5 scope with a full schema/endpoint design, but was never implemented — no `product_reviews` table, no routes, no UI exist. Needs an explicit call before launch: build it as a pre-launch addendum, or formally move it to a post-launch phase (it's currently the one item in this doc that reads as "done" in `Phase_Plan_Business.md` but isn't).
 
 ---
 

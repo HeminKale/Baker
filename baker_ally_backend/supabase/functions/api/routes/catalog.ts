@@ -1,11 +1,18 @@
 import { Hono } from "npm:hono";
 import { zValidator } from "npm:@hono/zod-validator";
 import { z } from "npm:zod";
-import { and, asc, desc, eq, inArray, ne, sql } from "npm:drizzle-orm";
+import { and, asc, desc, eq, inArray, notInArray, sql } from "npm:drizzle-orm";
 
 import { rateLimitMiddleware } from "../middleware/rateLimit.ts";
 import { db } from "../lib/db.ts";
-import { categories, productImages, products, productVariants, subCategories } from "../db/schema.ts";
+import {
+  categories,
+  productCrossSell,
+  productImages,
+  products,
+  productVariants,
+  subCategories,
+} from "../db/schema.ts";
 
 export const catalogRoute = new Hono();
 
@@ -84,6 +91,94 @@ export async function attachDisplayInfo(productRows: (typeof products.$inferSele
     displayVariant: displayVariantByProduct.get(product.id) ?? null,
     displayImageUrl: displayImageByProduct.get(product.id)?.publicUrl ?? null,
   }));
+}
+
+// "You Might Also Like" slotting (Milestone 6 / 6.8) -- shared by this
+// file's own /products/:id/related and cart.ts's /checkout/recommendations.
+// Positions 1-4: algorithmic (same subcategory pool, trending/recency).
+// Positions 5-7: curated product_cross_sell picks for sourceProductIds,
+// round-robin across sources by sort_order; backfilled algorithmically if
+// fewer than 3 curated picks exist. Positions 8-10: algorithmic continuation.
+// Total stays capped at 10 -- when no curation exists this reproduces the
+// old single top-10-by-trending/recency query exactly (fully backward
+// compatible), since backfill/continuation walk the same ordered pool
+// without skipping anything but already-picked ids.
+export async function buildRecommendations(params: {
+  subCategoryIds: string[];
+  sourceProductIds: string[];
+}) {
+  const { subCategoryIds, sourceProductIds } = params;
+  if (subCategoryIds.length === 0) return [];
+
+  const selected = new Set<string>(sourceProductIds);
+
+  const algoPool = await db
+    .select()
+    .from(products)
+    .where(
+      and(
+        inArray(products.subCategoryId, subCategoryIds),
+        eq(products.isActive, true),
+        notInArray(products.id, sourceProductIds),
+      ),
+    )
+    .orderBy(desc(products.isTrending), desc(products.createdAt))
+    .limit(50);
+
+  const take = (from: (typeof algoPool)[number][], count: number) => {
+    const picked: (typeof algoPool)[number][] = [];
+    for (const p of from) {
+      if (picked.length >= count) break;
+      if (selected.has(p.id)) continue;
+      picked.push(p);
+      selected.add(p.id);
+    }
+    return picked;
+  };
+
+  const positions1to4 = take(algoPool, 4);
+
+  // Round-robin curated picks across every source product (checkout can have
+  // several cart items each with their own curation) -- judgment call from
+  // the 6.8 plan, deduped against the cart and against each other.
+  const curatedRows = sourceProductIds.length
+    ? await db
+        .select()
+        .from(productCrossSell)
+        .where(inArray(productCrossSell.sourceProductId, sourceProductIds))
+        .orderBy(asc(productCrossSell.sortOrder))
+    : [];
+  const bySource = new Map<string, typeof curatedRows>();
+  for (const row of curatedRows) {
+    const list = bySource.get(row.sourceProductId) ?? [];
+    list.push(row);
+    bySource.set(row.sourceProductId, list);
+  }
+  const sourceOrder = sourceProductIds.filter((id) => bySource.has(id));
+
+  const curatedIds: string[] = [];
+  for (let round = 0; curatedIds.length < 3 && sourceOrder.some((id) => round < bySource.get(id)!.length); round++) {
+    for (const srcId of sourceOrder) {
+      if (curatedIds.length >= 3) break;
+      const list = bySource.get(srcId)!;
+      if (round >= list.length) continue;
+      const candidateId = list[round].recommendedProductId;
+      if (selected.has(candidateId)) continue;
+      curatedIds.push(candidateId);
+      selected.add(candidateId);
+    }
+  }
+
+  const curatedProductRows = curatedIds.length
+    ? await db.select().from(products).where(inArray(products.id, curatedIds))
+    : [];
+  const curatedById = new Map(curatedProductRows.map((p) => [p.id, p]));
+  const positions5to7 = curatedIds.map((id) => curatedById.get(id)).filter((p): p is typeof products.$inferSelect => !!p);
+
+  const backfill = take(algoPool, 3 - positions5to7.length);
+  const positions8to10 = take(algoPool, 3);
+
+  return attachDisplayInfo([...positions1to4, ...positions5to7, ...backfill, ...positions8to10]);
 }
 
 const listProductsQuerySchema = z.object({
@@ -216,17 +311,9 @@ catalogRoute.get("/products/:id/related", async (c) => {
     return c.json({ error: { code: "PRODUCT_NOT_FOUND", message: "Product not found" } }, 404);
   }
 
-  const rows = await db
-    .select()
-    .from(products)
-    .where(and(
-      eq(products.subCategoryId, product.subCategoryId),
-      eq(products.isActive, true),
-      ne(products.id, id),
-    ))
-    .orderBy(desc(products.isTrending), desc(products.createdAt))
-    .limit(10);
-
-  const data = await attachDisplayInfo(rows);
+  const data = await buildRecommendations({
+    subCategoryIds: [product.subCategoryId],
+    sourceProductIds: [id],
+  });
   return c.json({ data });
 });
