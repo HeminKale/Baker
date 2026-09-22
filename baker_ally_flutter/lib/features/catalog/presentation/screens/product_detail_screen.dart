@@ -2,7 +2,12 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../../shared/widgets/login_required_sheet.dart';
+import '../../../auth/presentation/auth_provider.dart';
 import '../../../cart/presentation/providers/cart_providers.dart';
+import '../../../projects/presentation/widgets/add_to_project_icon.dart';
+import '../../../reviews/presentation/widgets/reviews_section.dart';
+import '../../../wishlist/presentation/providers/wishlist_provider.dart';
 import '../../../wishlist/presentation/widgets/wishlist_heart.dart';
 import '../../data/models/product_detail.dart';
 import '../../data/models/product_image.dart';
@@ -67,7 +72,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             Expanded(
                               child: Text(detail.name, style: Theme.of(context).textTheme.headlineSmall),
                             ),
-                            if (variant != null)
+                            if (variant != null) ...[
                               WishlistHeart(
                                 variantId: variant.id,
                                 productId: detail.id,
@@ -76,6 +81,15 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                 currentPrice: variant.currentPrice,
                                 imageUrl: detail.images.isNotEmpty ? detail.images.first.publicUrl : null,
                               ),
+                              AddToProjectIcon(
+                                variantId: variant.id,
+                                productId: detail.id,
+                                productName: detail.name,
+                                variantName: variant.name,
+                                currentPrice: variant.currentPrice,
+                                imageUrl: detail.images.isNotEmpty ? detail.images.first.publicUrl : null,
+                              ),
+                            ],
                           ],
                         ),
                         Text(
@@ -110,6 +124,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           const SizedBox(height: 16),
                         ],
                         _RelatedProducts(productId: detail.id),
+                        const SizedBox(height: 16),
+                        ReviewsSection(productId: detail.id),
                       ],
                     ),
                   ),
@@ -299,9 +315,11 @@ class _AddToCartBar extends ConsumerWidget {
       child: SafeArea(
         top: false,
         child: variant.isOutOfStock
-            ? const SizedBox(
-                width: double.infinity,
-                child: FilledButton(onPressed: null, child: Text('Out of Stock')),
+            ? _NotifyMeButton(
+                variant: variant,
+                productId: productId,
+                productName: productName,
+                imageUrl: imageUrl,
               )
             : AnimatedSwitcher(
                 duration: const Duration(milliseconds: 150),
@@ -345,5 +363,65 @@ class _AddToCartBar extends ConsumerWidget {
               ),
       ),
     );
+  }
+}
+
+/// Replaces the old disabled "Out of Stock" button (02_catalog_tab.md §4).
+/// Wishlisting an out-of-stock variant already *is* the "notify me" request
+/// server-side (`wishlists.last_notified_at` + the restock trigger in
+/// `024_AP_restock_notify_trigger.sql`, which pushes via FCM once stock goes
+/// 0 -> positive) -- this button is a differently-labelled front end onto the
+/// exact same `wishlistIdsProvider.toggle()` the heart icon uses, not a new
+/// mechanism. No email provider needed; the built notify path is push, not
+/// email (superseding the older email-based design in
+/// `00_common_architecture.md` §12a).
+class _NotifyMeButton extends ConsumerWidget {
+  const _NotifyMeButton({
+    required this.variant,
+    required this.productId,
+    required this.productName,
+    this.imageUrl,
+  });
+
+  final ProductVariant variant;
+  final String productId;
+  final String productName;
+  final String? imageUrl;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final isRequested = ref.watch(wishlistIdsProvider).contains(variant.id);
+
+    return SizedBox(
+      width: double.infinity,
+      child: isRequested
+          ? OutlinedButton.icon(
+              onPressed: () => _toggle(ref),
+              icon: const Icon(Icons.notifications_active_outlined),
+              label: const Text("We'll notify you when it's back"),
+            )
+          : FilledButton.icon(
+              onPressed: () {
+                if (!ref.read(authProvider).isLoggedIn) {
+                  showLoginRequiredSheet(context);
+                  return;
+                }
+                _toggle(ref);
+              },
+              icon: const Icon(Icons.notifications_none),
+              label: const Text('Notify Me When Available'),
+            ),
+    );
+  }
+
+  void _toggle(WidgetRef ref) {
+    ref.read(wishlistIdsProvider.notifier).toggle(
+          variantId: variant.id,
+          productId: productId,
+          productName: productName,
+          variantName: variant.name,
+          currentPrice: variant.currentPrice,
+          imageUrl: imageUrl,
+        );
   }
 }

@@ -24,6 +24,8 @@ import '../../features/profile/presentation/screens/contact_screen.dart';
 import '../../features/profile/presentation/screens/edit_profile_screen.dart';
 import '../../features/profile/presentation/screens/help_screen.dart';
 import '../../features/profile/presentation/screens/recipes_screen.dart';
+import '../../features/projects/presentation/screens/project_detail_screen.dart';
+import '../../features/projects/presentation/screens/projects_list_screen.dart';
 import '../../features/receipts/presentation/screens/receipts_screen.dart';
 import '../../features/wishlist/presentation/screens/wishlist_screen.dart';
 import '../../shared/widgets/app_shell.dart';
@@ -33,7 +35,7 @@ import '../../shared/widgets/placeholder_screen.dart';
 /// §2/§3) -- login is gated at the checkout "Proceed" action, not on /cart
 /// itself. Milestone 5 adds account/discovery screens here as they're built;
 /// see 00_common_architecture.md line 192 for the full intended guard list.
-const _protectedPaths = <String>['/profile/edit', '/addresses', '/wishlist', '/orders', '/receipts'];
+const _protectedPaths = <String>['/profile/edit', '/addresses', '/wishlist', '/orders', '/receipts', '/projects'];
 
 final routerProvider = Provider<GoRouter>((ref) {
   final authNotifier = ref.watch(authProvider.notifier);
@@ -74,6 +76,13 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => AddressFormScreen(existing: state.extra as Address?),
       ),
       GoRoute(path: '/wishlist', builder: (context, state) => const WishlistScreen()),
+      // Projects (Milestone 7, 07_projects.md §5/§6) -- top-level like
+      // /wishlist, not nested under a bottom-nav branch.
+      GoRoute(path: '/projects', builder: (context, state) => const ProjectsListScreen()),
+      GoRoute(
+        path: '/projects/:id',
+        builder: (context, state) => ProjectDetailScreen(projectId: state.pathParameters['id']!),
+      ),
       // "Your Orders" and "Order Status" share this route -- the Profile
       // Overlay's Order Status tile pushes with extra {'status': 'active'}.
       GoRoute(

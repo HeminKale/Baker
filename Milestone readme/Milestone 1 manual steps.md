@@ -292,6 +292,32 @@ android/app/baker_ally-release.jks
 
 ---
 
+### Step A.3c: Custom SMTP via Resend (Production Email Sending)
+
+**What:** Route Supabase Auth's outbound mail (Confirm signup, Magic Link/OTP, Reset Password) through Resend instead of Supabase's built-in mailer.
+
+**Why:** Supabase's default mailer is rate-limited to a handful of emails/hour and is meant for testing only — not enough once real users are signing up/requesting OTPs. This is already budgeted in `Planning docs/Costing.md` §8 (Resend free tier, ~2,000–2,500 emails/month, ₹0/month at Baker Ally's projected volume). It is purely a Dashboard-level transport swap — no app or backend code changes.
+
+**How:**
+1. Create a Resend account (https://resend.com) and add/verify a sending domain (add the TXT/DKIM/MX records Resend gives you to your domain's DNS).
+2. Resend Dashboard → API Keys → create an API key.
+3. Supabase Dashboard → **Project Settings** → **Authentication** → **SMTP Settings** → enable **Custom SMTP**:
+   - Host: `smtp.resend.com`
+   - Port: `465` (SSL) or `587` (STARTTLS)
+   - Username: `resend`
+   - Password: your Resend API key
+   - Sender email: an address on the domain you verified in step 1 (e.g. `noreply@bakerally.com`)
+   - Sender name: `Baker Ally`
+4. Save.
+
+**Verify:**
+- Trigger a fresh sign-up or "Send Code" from the app — the email should arrive from your verified domain, not `noreply@mail.app.supabase.io`
+- Resend Dashboard → Logs shows the send
+
+**Note:** This is independent of the `{{ .Token }}` template edit above — do both. The template edit controls *what* the email shows; custom SMTP controls *how many* you can send and *from what address*.
+
+---
+
 ### Step A.4: Create Supabase Storage Bucket (Phase 2 prep)
 
 **What:** Create the `product-images` bucket (used in Phase 2 for catalog images, but created now for consistency).

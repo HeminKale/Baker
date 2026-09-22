@@ -163,6 +163,19 @@ class CachedHomeSections extends Table {
   Set<Column> get primaryKey => {section, productId};
 }
 
+/// Flattened variantId set across active Projects, cached for the same
+/// reason `CachedWishlistItems` exists -- backs the on-product Add-to-Project
+/// icon's filled/outline state, read on every tile render
+/// (07_projects.md §9 "Offline caching scope decision"). Full Projects
+/// list/detail screens are deliberately network-first with no offline
+/// fallback -- only this flattened id lookup gets a local cache.
+class CachedProjectItemVariantIds extends Table {
+  TextColumn get variantId => text()();
+
+  @override
+  Set<Column> get primaryKey => {variantId};
+}
+
 @DriftDatabase(tables: [
   AppSettings,
   CachedCategories,
@@ -173,12 +186,13 @@ class CachedHomeSections extends Table {
   CachedAddresses,
   CachedOrders,
   CachedHomeSections,
+  CachedProjectItemVariantIds,
 ])
 class AppDatabase extends _$AppDatabase {
   AppDatabase() : super(_openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -199,6 +213,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 5) {
             await m.createTable(cachedHomeSections);
+          }
+          if (from < 6) {
+            await m.createTable(cachedProjectItemVariantIds);
           }
         },
       );
