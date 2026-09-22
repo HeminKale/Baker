@@ -658,7 +658,14 @@ Each product/variant can have multiple flags that affect display and behavior:
 
 ## 5a. Reviews & Ratings Architecture
 
-**Not built yet — designed here, scheduled to Phase 5 (Account & Discovery)**, since eligibility depends on `order_items` existing (Phase 3/4) and Phase 5 is where the "Discovery"/trust-building features live. Product-level only — no store-wide/seller rating in this design (kept out of scope deliberately to match the initial ask).
+> ✅ Built in Milestone 8 (2026-09-22). See `Milestone readme/Milestone 8.md`. One
+> deviation from the design below: `POST /v1/products/:id/reviews` does **not**
+> take a client-supplied `orderItemId` — since eligibility is entirely
+> server-computed anyway, the server resolves the eligible order_item itself
+> rather than trusting a client-supplied id for a FK it doesn't otherwise
+> validate. Everything else matches.
+
+Product-level only — no store-wide/seller rating in this design (kept out of scope deliberately to match the initial ask).
 
 Appears on the Product Detail page (Level 3), below "You Might Also Like" (`02_catalog_tab.md` §4).
 
@@ -1036,7 +1043,9 @@ On bell tap:
 
 ## 12a. Back-in-Stock Email Notifications
 
-**Not built yet — designed here, scheduled per §17's open decisions.** Referenced from `02_catalog_tab.md` (the out-of-stock state on the product tile / Fixed Bottom CTA) and `03_order_again_tab.md` §7, which already called out a "Notify Me" button on out-of-stock tiles as a future feature without a design behind it. This section is that design.
+> **Superseded (Milestone 8, 2026-09-22):** this section's email-based design (`stock_notify_requests`, a pgmq queue, and an unchosen email provider) was never built. What actually shipped is simpler and reuses infrastructure Milestone 6 already built: wishlisting an out-of-stock variant **is** the "Notify Me" request (`wishlists.last_notified_at`), and `024_AP_restock_notify_trigger.sql`'s Postgres trigger already pushes an FCM notification when stock crosses 0 → positive (`routes/internal.ts`'s `notify-restock`). Milestone 8 only added the missing **UI** piece — `02_catalog_tab.md` §4's disabled "Out of Stock" button became a functional "Notify Me" button that calls the same `wishlistIdsProvider.toggle()` the heart icon uses. No email provider was needed. The rest of this section is kept as a historical record of the design that was superseded, not as a pending TODO.
+
+**Not built** — see the note above for what was actually built instead.
 
 ### The trigger point
 
@@ -1251,7 +1260,7 @@ All list endpoints paginate with `?page=1&limit=20`. Never return unbounded list
 |---|---|---|
 | A | Porter integration details | Shipping cost calculation, free shipping threshold |
 | B | Brownie points earn/redeem rules | brownie_points tab build |
-| C | Transactional email provider (Resend / Postmark / SendGrid / other)? | Back-in-stock emails (§12a) — the design and `stock_notify_requests` table are ready, but nothing can actually send until a provider is picked and its secret is added |
+| ~~C~~ | ~~Transactional email provider (Resend / Postmark / SendGrid / other)?~~ | **Resolved 2026-09-22, moot rather than answered** — §12a's email design was never built; Milestone 8 shipped back-in-stock notifications via the already-built wishlist + FCM push path instead (Milestone 6's `024_AP_restock_notify_trigger.sql`), so no email provider is needed for this feature. Resend is separately chosen for Auth OTP emails (`Costing.md` §8, `Milestone 1 manual steps.md` Step A.3c) — unrelated decision, already resolved on its own. |
 
 ---
 

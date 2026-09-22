@@ -258,6 +258,70 @@ export const orderItems = pgTable("order_items", {
   createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
+// Milestone 7: per-user, multi-list equivalent of Wishlist -- see
+// Planning docs/Architecture/07_projects.md §7 for the design rationale.
+export const projects = pgTable("projects", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  userId: uuid("user_id")
+    .notNull()
+    .references(() => users.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
+  status: text("status").notNull().default("active"), // 'active' | 'completed' (CHECK in SQL)
+  eventDate: timestamp("event_date", { withTimezone: true }),
+  clientName: text("client_name"),
+  clientPhone: text("client_phone"),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  completedAt: timestamp("completed_at", { withTimezone: true }),
+});
+
+export const projectItems = pgTable(
+  "project_items",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    projectId: uuid("project_id")
+      .notNull()
+      .references(() => projects.id, { onDelete: "cascade" }),
+    variantId: uuid("variant_id")
+      .notNull()
+      .references(() => productVariants.id, { onDelete: "cascade" }),
+    quantity: integer("quantity").notNull().default(1),
+    addedAt: timestamp("added_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    projectVariantUnique: unique().on(table.projectId, table.variantId),
+  }),
+);
+
+// Milestone 8: product-level, verified-purchase-gated reviews -- see
+// Planning docs/Architecture/00_common_architecture.md §5a.
+export const productReviews = pgTable(
+  "product_reviews",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    productId: uuid("product_id")
+      .notNull()
+      .references(() => products.id, { onDelete: "cascade" }),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    orderItemId: uuid("order_item_id")
+      .notNull()
+      .references(() => orderItems.id),
+    overallRating: integer("overall_rating").notNull(),
+    qualityRating: integer("quality_rating"),
+    valueRating: integer("value_rating"),
+    packagingRating: integer("packaging_rating"),
+    accuracyRating: integer("accuracy_rating"),
+    comment: text("comment"),
+    tags: text("tags").array(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => ({
+    userProductUnique: unique().on(table.userId, table.productId),
+  }),
+);
+
 export const webhookEvents = pgTable(
   "webhook_events",
   {

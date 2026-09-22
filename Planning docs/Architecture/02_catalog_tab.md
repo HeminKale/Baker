@@ -1,7 +1,7 @@
 # Baker Ally — Catalog Tab Architecture
 > Second tab in bottom navigation.
 > Three-level navigation: Category grid → Subcategory with product grid → Product detail.
-> Last updated: July 2026
+> Last updated: September 2026 (Milestone 8 — tile redesign, Notify Me, Reviews & Ratings all built; see inline ✅ callouts)
 
 ---
 
@@ -12,6 +12,7 @@
 3. [Level 2 — Subcategory + Product Grid](#3-level-2--subcategory--product-grid)
 4. [Level 3 — Product Detail Page](#4-level-3--product-detail-page)
 5. [Product Tile — Full Spec](#5-product-tile--full-spec)
+   - 5a. [Tile Redesign — Floating "+" and Flat Background](#5a-tile-redesign--floating--and-flat-background)
 6. [Wishlist Heart](#6-wishlist-heart)
 7. [Filters & Sorting](#7-filters--sorting)
 8. [Empty & Edge States](#8-empty--edge-states)
@@ -284,7 +285,16 @@ In cart:       [  − 1 +  ·  ₹95  ]          ← stepper replaces button
 Out of stock:  [  Notify Me  ]               ← see 00_common_architecture.md §12a
 ```
 
-Same button → stepper transition as catalog tile (AnimatedSwitcher). The out-of-stock state is currently built as a plain disabled "Out of Stock" button (Milestone 2) — swapping it for a functional "Notify Me" button is designed but not yet built, blocked on choosing an email provider (§17 open decision C in `00_common_architecture.md`).
+Same button → stepper transition as catalog tile (AnimatedSwitcher).
+
+> **✅ Built in Milestone 8 (2026-09-22):** the out-of-stock state is now a
+> functional "Notify Me When Available" button, not the old disabled
+> placeholder. It didn't need an email provider after all — wishlisting an
+> out-of-stock variant already *is* the notify-me request (Milestone 6's
+> `wishlists.last_notified_at` + FCM restock push trigger), so the button is
+> just a differently-labelled front end onto the same `wishlistIdsProvider`
+> the heart icon uses. See `00_common_architecture.md` §12a for the full
+> before/after and `Milestone readme/Milestone 8.md`.
 
 ### Wishlist Heart (top right of product name)
 
@@ -301,7 +311,7 @@ Same button → stepper transition as catalog tile (AnimatedSwitcher). The out-o
 
 ### Reviews & Ratings (below You Might Also Like)
 
-**Not built yet — designed, scheduled to Phase 5.** Full architecture (DB table, eligibility rules, category definitions, API, Add Review form, Riverpod state) lives in `00_common_architecture.md` §5a — this page only owns the layout slot. Product-level only, verified-purchase gated (must have a `delivered` order for this product), one review per user per product.
+**✅ Built in Milestone 8 (2026-09-22).** Full architecture (DB table, eligibility rules, category definitions, API, Add Review form, Riverpod state) lives in `00_common_architecture.md` §5a — this page only owns the layout slot. Product-level only, verified-purchase gated (must have a `delivered` order for this product), one review per user per product. `features/reviews/` is the Flutter module; `ReviewsSection` is mounted directly below `_RelatedProducts` on `ProductDetailScreen`.
 
 ---
 
@@ -309,20 +319,24 @@ Same button → stepper transition as catalog tile (AnimatedSwitcher). The out-o
 
 Used on Level 2 grid, Home tab rows, Order Again grid, Wishlist. One consistent design everywhere.
 
+> **✅ Built in Milestone 8 (2026-09-22):** the tile is flattened — no
+> card-fill background behind the text block, and the full-width "Add to
+> Cart" button is replaced by a small floating "+" overlapping the image's
+> bottom-right corner. See the mockup and §5a below for the shipped design.
+> (The heart's position shown here — top-right of the image — already
+> matches the real app as of Milestone 6.5; this doc's older wording had it
+> on the detail page only, which the actual build moved on from.)
+
 ```
 ┌──────────────────────────┐
-│  [Trending]  [Low Stock] │  ← badge row — only shown if applicable
-│                          │
+│  [Trending]  [Low Stock] │  ← badge row, top-left of image — only if applicable
+│                       ❤  │  ← wishlist heart, top-right of image
 │      [Product Image]     │  ← cached_network_image, 1:1 ratio
-│                          │
-│  Fresh Cream 25%         │  ← product name, 2 lines max, ellipsis
+│                        ⊕ │  ← add-to-cart "+", bottom-right of image, overlapping it
+├──────────────────────────┤  ← no card fill below this line — text sits directly
+│  Fresh Cream 25%         │     on the screen's own background, not a boxed panel
 │  500ml                   │  ← default variant name, muted
-│                          │
 │  ~~₹120~~  ₹95           │  ← strike price only if original ≠ current
-│                          │
-│  ┌──────────────────┐    │
-│  │  + Add to Cart   │    │  ← transforms to stepper on tap
-│  └──────────────────┘    │
 └──────────────────────────┘
 ```
 
@@ -349,8 +363,63 @@ original_price > current_price  → show ~~original~~ current_price + % off badg
 
 - 2-column grid → each tile = (screen width - padding) / 2
 - Image: square, fills full tile width
-- Text + button below image: fixed height area
+- Text block below image: fixed height area, no surrounding card fill (§5a)
 - Consistent height across all tiles regardless of text length (fixed 2-line name clamp)
+
+---
+
+## 5a. Tile Redesign — Floating "+" and Flat Background
+
+Two related changes to the tile, both scoped to the shared `ProductTile` widget
+(so they apply everywhere it's reused — Level 2 grid, Home rows, Order Again,
+Wishlist — in one place):
+
+**1. Add-to-Cart becomes a floating "+" on the image, not a button below it.**
+
+Today the tile is `Column [ image, text block containing name/variant/price/
+full-width-Add-to-Cart-button ]`. The button moves onto the image itself —
+a small circular "+" anchored to the image's bottom-right corner via `Stack`
+(the same `Stack`/`Positioned` mechanism already used for the badge row and
+wishlist heart on the other two corners), overlapping the image edge. That
+overlap is intentional, not a bug to fix later.
+
+```
+Idle:    [Product Image]          ⊕   ← small circular button, bottom-right, overlaps image
+Tapped:  [Product Image]   [ − 1 + ]  ← expands in place to a compact stepper pill
+```
+
+- Same tap targets and cart logic as today's `_AddToCartControl` /
+  `addToCart()` helper (stock cap, "Max stock reached" snackbar, optimistic
+  cart update) — this is a **visual** relocation, not a behavior change.
+- Same `AnimatedSwitcher` idle-button ↔ stepper transition already built for
+  the current button — just replayed at the new position/size.
+- Out-of-stock state: today a full-width disabled "Out of Stock" button:
+  becomes a disabled/greyed "+" in the same corner (or the corner is left
+  empty with the badge row's existing "Out of Stock" badge carrying that
+  signal instead) — pick one during implementation, both are minor variants
+  of the same idea.
+- Sizing note: the "− 1 +" stepper is wider than a single "+" circle. Since
+  it overlaps the image (not constrained by the text block's width), it has
+  room to expand there without pushing tile layout around — that's *why*
+  putting it on the image rather than in the text flow works cleanly.
+
+**2. Remove the solid card-fill background behind the text block.**
+
+Today's `Card(...)` wraps the whole tile (image + text), so the text area
+sits on a distinct filled panel (the Card's surface color) that visually
+separates it from the screen behind it. Remove that fill: the image keeps
+its own bounds (it's a photo, it still looks like a tile), but the name/
+variant/price text below it renders directly on the screen's background,
+with no visible panel edge or color block behind it. Net effect: tiles read
+as "photo + caption" rather than "boxed card," closer to Home/Order Again's
+already-lighter visual weight than the current bordered-card catalog grid.
+- Tap target for navigating to product detail is unaffected — still the
+  whole tile area (`InkWell` wraps the same region as before, just without a
+  `Card`'s painted background).
+- Spacing between tiles in the grid must still read clearly without a card
+  border providing the visual separation — rely on the existing grid gutter
+  spacing (`mainAxisSpacing`/`crossAxisSpacing`) rather than adding one back
+  in as a border.
 
 ---
 
@@ -448,9 +517,9 @@ Products still shown with "Out of Stock" badge — not hidden. Bakers may want t
 | Toggle wishlist | `POST /v1/wishlist { variantId }` | Add |
 | Toggle wishlist | `DELETE /v1/wishlist/:variantId` | Remove |
 | Search | `GET /v1/products?q=:term` | Full-text search across name + description |
-| Load reviews + rating summary | `GET /v1/products/:id/reviews?page=&limit=` | Not built yet — Phase 5, see `00_common_architecture.md` §5a |
-| Check review eligibility | `GET /v1/products/:id/reviews/eligibility` | Not built yet — Phase 5 |
-| Submit a review | `POST /v1/products/:id/reviews` | Not built yet — Phase 5, verified-purchase gated |
+| Load reviews + rating summary | `GET /v1/products/:id/reviews?page=&limit=` | ✅ Built Milestone 8, see `00_common_architecture.md` §5a. Public, no auth. |
+| Check review eligibility | `GET /v1/products/:id/reviews/eligibility` | ✅ Built Milestone 8. Requires login. |
+| Submit a review | `POST /v1/products/:id/reviews` | ✅ Built Milestone 8, verified-purchase gated. Requires login; server resolves the eligible order_item itself rather than trusting a client-supplied id. |
 
 ### Caching Strategy
 
@@ -500,10 +569,11 @@ final wishlistIdsProvider = StateNotifierProvider<WishlistNotifier, Set<String>>
   return WishlistNotifier(ref.read(wishlistRepositoryProvider));
 });
 
-// Reviews & ratings — not built yet (Phase 5), full definition in
-// 00_common_architecture.md §5a:
-//   productReviewsProvider     FutureProvider.family<ReviewSummary, String>
-//   reviewEligibilityProvider  FutureProvider.family<ReviewEligibility, String>
+// Reviews & ratings -- ✅ built Milestone 8, full definition in
+// 00_common_architecture.md §5a. Both live in features/reviews/, not here,
+// and are .autoDispose (so a freshly-submitted review isn't served stale):
+//   productReviewsProvider     FutureProvider.autoDispose.family<ReviewSummary, String>
+//   reviewEligibilityProvider  FutureProvider.autoDispose.family<ReviewEligibility, String>
 ```
 
 ---

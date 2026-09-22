@@ -4715,6 +4715,185 @@ class CachedHomeSectionsCompanion extends UpdateCompanion<CachedHomeSection> {
   }
 }
 
+class $CachedProjectItemVariantIdsTable extends CachedProjectItemVariantIds
+    with
+        TableInfo<
+          $CachedProjectItemVariantIdsTable,
+          CachedProjectItemVariantId
+        > {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $CachedProjectItemVariantIdsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _variantIdMeta = const VerificationMeta(
+    'variantId',
+  );
+  @override
+  late final GeneratedColumn<String> variantId = GeneratedColumn<String>(
+    'variant_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [variantId];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'cached_project_item_variant_ids';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<CachedProjectItemVariantId> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('variant_id')) {
+      context.handle(
+        _variantIdMeta,
+        variantId.isAcceptableOrUnknown(data['variant_id']!, _variantIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_variantIdMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {variantId};
+  @override
+  CachedProjectItemVariantId map(
+    Map<String, dynamic> data, {
+    String? tablePrefix,
+  }) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return CachedProjectItemVariantId(
+      variantId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}variant_id'],
+      )!,
+    );
+  }
+
+  @override
+  $CachedProjectItemVariantIdsTable createAlias(String alias) {
+    return $CachedProjectItemVariantIdsTable(attachedDatabase, alias);
+  }
+}
+
+class CachedProjectItemVariantId extends DataClass
+    implements Insertable<CachedProjectItemVariantId> {
+  final String variantId;
+  const CachedProjectItemVariantId({required this.variantId});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['variant_id'] = Variable<String>(variantId);
+    return map;
+  }
+
+  CachedProjectItemVariantIdsCompanion toCompanion(bool nullToAbsent) {
+    return CachedProjectItemVariantIdsCompanion(variantId: Value(variantId));
+  }
+
+  factory CachedProjectItemVariantId.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return CachedProjectItemVariantId(
+      variantId: serializer.fromJson<String>(json['variantId']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{'variantId': serializer.toJson<String>(variantId)};
+  }
+
+  CachedProjectItemVariantId copyWith({String? variantId}) =>
+      CachedProjectItemVariantId(variantId: variantId ?? this.variantId);
+  CachedProjectItemVariantId copyWithCompanion(
+    CachedProjectItemVariantIdsCompanion data,
+  ) {
+    return CachedProjectItemVariantId(
+      variantId: data.variantId.present ? data.variantId.value : this.variantId,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedProjectItemVariantId(')
+          ..write('variantId: $variantId')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => variantId.hashCode;
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is CachedProjectItemVariantId &&
+          other.variantId == this.variantId);
+}
+
+class CachedProjectItemVariantIdsCompanion
+    extends UpdateCompanion<CachedProjectItemVariantId> {
+  final Value<String> variantId;
+  final Value<int> rowid;
+  const CachedProjectItemVariantIdsCompanion({
+    this.variantId = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  CachedProjectItemVariantIdsCompanion.insert({
+    required String variantId,
+    this.rowid = const Value.absent(),
+  }) : variantId = Value(variantId);
+  static Insertable<CachedProjectItemVariantId> custom({
+    Expression<String>? variantId,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (variantId != null) 'variant_id': variantId,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  CachedProjectItemVariantIdsCompanion copyWith({
+    Value<String>? variantId,
+    Value<int>? rowid,
+  }) {
+    return CachedProjectItemVariantIdsCompanion(
+      variantId: variantId ?? this.variantId,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (variantId.present) {
+      map['variant_id'] = Variable<String>(variantId.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('CachedProjectItemVariantIdsCompanion(')
+          ..write('variantId: $variantId, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4736,6 +4915,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $CachedOrdersTable cachedOrders = $CachedOrdersTable(this);
   late final $CachedHomeSectionsTable cachedHomeSections =
       $CachedHomeSectionsTable(this);
+  late final $CachedProjectItemVariantIdsTable cachedProjectItemVariantIds =
+      $CachedProjectItemVariantIdsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4750,6 +4931,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     cachedAddresses,
     cachedOrders,
     cachedHomeSections,
+    cachedProjectItemVariantIds,
   ];
 }
 
@@ -7179,6 +7361,149 @@ typedef $$CachedHomeSectionsTableProcessedTableManager =
       CachedHomeSection,
       PrefetchHooks Function()
     >;
+typedef $$CachedProjectItemVariantIdsTableCreateCompanionBuilder =
+    CachedProjectItemVariantIdsCompanion Function({
+      required String variantId,
+      Value<int> rowid,
+    });
+typedef $$CachedProjectItemVariantIdsTableUpdateCompanionBuilder =
+    CachedProjectItemVariantIdsCompanion Function({
+      Value<String> variantId,
+      Value<int> rowid,
+    });
+
+class $$CachedProjectItemVariantIdsTableFilterComposer
+    extends Composer<_$AppDatabase, $CachedProjectItemVariantIdsTable> {
+  $$CachedProjectItemVariantIdsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$CachedProjectItemVariantIdsTableOrderingComposer
+    extends Composer<_$AppDatabase, $CachedProjectItemVariantIdsTable> {
+  $$CachedProjectItemVariantIdsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get variantId => $composableBuilder(
+    column: $table.variantId,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$CachedProjectItemVariantIdsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $CachedProjectItemVariantIdsTable> {
+  $$CachedProjectItemVariantIdsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get variantId =>
+      $composableBuilder(column: $table.variantId, builder: (column) => column);
+}
+
+class $$CachedProjectItemVariantIdsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $CachedProjectItemVariantIdsTable,
+          CachedProjectItemVariantId,
+          $$CachedProjectItemVariantIdsTableFilterComposer,
+          $$CachedProjectItemVariantIdsTableOrderingComposer,
+          $$CachedProjectItemVariantIdsTableAnnotationComposer,
+          $$CachedProjectItemVariantIdsTableCreateCompanionBuilder,
+          $$CachedProjectItemVariantIdsTableUpdateCompanionBuilder,
+          (
+            CachedProjectItemVariantId,
+            BaseReferences<
+              _$AppDatabase,
+              $CachedProjectItemVariantIdsTable,
+              CachedProjectItemVariantId
+            >,
+          ),
+          CachedProjectItemVariantId,
+          PrefetchHooks Function()
+        > {
+  $$CachedProjectItemVariantIdsTableTableManager(
+    _$AppDatabase db,
+    $CachedProjectItemVariantIdsTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$CachedProjectItemVariantIdsTableFilterComposer(
+                $db: db,
+                $table: table,
+              ),
+          createOrderingComposer: () =>
+              $$CachedProjectItemVariantIdsTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$CachedProjectItemVariantIdsTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> variantId = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => CachedProjectItemVariantIdsCompanion(
+                variantId: variantId,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String variantId,
+                Value<int> rowid = const Value.absent(),
+              }) => CachedProjectItemVariantIdsCompanion.insert(
+                variantId: variantId,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map((e) => (e.readTable(table), BaseReferences(db, table, e)))
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$CachedProjectItemVariantIdsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $CachedProjectItemVariantIdsTable,
+      CachedProjectItemVariantId,
+      $$CachedProjectItemVariantIdsTableFilterComposer,
+      $$CachedProjectItemVariantIdsTableOrderingComposer,
+      $$CachedProjectItemVariantIdsTableAnnotationComposer,
+      $$CachedProjectItemVariantIdsTableCreateCompanionBuilder,
+      $$CachedProjectItemVariantIdsTableUpdateCompanionBuilder,
+      (
+        CachedProjectItemVariantId,
+        BaseReferences<
+          _$AppDatabase,
+          $CachedProjectItemVariantIdsTable,
+          CachedProjectItemVariantId
+        >,
+      ),
+      CachedProjectItemVariantId,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7201,4 +7526,10 @@ class $AppDatabaseManager {
       $$CachedOrdersTableTableManager(_db, _db.cachedOrders);
   $$CachedHomeSectionsTableTableManager get cachedHomeSections =>
       $$CachedHomeSectionsTableTableManager(_db, _db.cachedHomeSections);
+  $$CachedProjectItemVariantIdsTableTableManager
+  get cachedProjectItemVariantIds =>
+      $$CachedProjectItemVariantIdsTableTableManager(
+        _db,
+        _db.cachedProjectItemVariantIds,
+      );
 }

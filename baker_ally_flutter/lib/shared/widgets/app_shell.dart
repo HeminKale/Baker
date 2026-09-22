@@ -9,6 +9,7 @@ import '../../features/checkout/presentation/providers/checkout_providers.dart';
 import '../../features/checkout/presentation/widgets/address_selector_sheet.dart';
 import '../../features/profile/presentation/providers/profile_providers.dart';
 import '../../features/profile/presentation/widgets/profile_overlay_sheet.dart';
+import '../../features/projects/presentation/widgets/projects_top_bar_icon.dart';
 
 /// Global bottom-nav shell -- 00_common_architecture.md §2. The bottom nav
 /// bar never disappears across the 5 tabs; sub-screens added in later
@@ -91,6 +92,7 @@ class _TopBar extends ConsumerWidget {
       child: Row(
         children: [
           const Expanded(child: _DefaultAddressLabel()),
+          const ProjectsTopBarIcon(),
           _AvatarButton(isLoggedIn: isLoggedIn),
         ],
       ),

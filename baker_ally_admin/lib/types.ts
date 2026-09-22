@@ -46,9 +46,20 @@ export type Product = {
   isActive: boolean;
   isTrending: boolean;
   sortOrder: number;
+  // Milestone 6.5 -- admin-authored bullet points (newline-separated), shown
+  // from the (i) icon on product detail.
+  infoMessage: string | null;
   createdAt: string;
   updatedAt: string;
 };
+
+// Milestone 6.5 -- "buy N of this variant, get ₹X off," single-tier, set via
+// PUT/DELETE /admin/variants/:id/quantity-discount.
+export type QuantityDiscountConfig = {
+  thresholdQty: number;
+  value: number; // paise, awarded once quantity >= thresholdQty
+  messageTemplate: string;
+} | null;
 
 export type ProductVariant = {
   id: string;
@@ -61,6 +72,7 @@ export type ProductVariant = {
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
+  quantityDiscount: QuantityDiscountConfig;
 };
 
 export type ProductImage = {

@@ -64,7 +64,8 @@ Source: `Milestone 1 manual steps.md`, `Milestone 1.md`, `Development vs Product
 - [ ] Run migrations `001`–`006` against the live Supabase project
 - [ ] Supabase Dashboard → Authentication → Hooks → enable `public.custom_access_token_hook` (JWT role claims won't work without this)
 - [ ] Supabase Dashboard → Authentication → URL Configuration → add redirect URL `com.chefsandbakers.app://login-callback`
-- [ ] **Email OTP template customization** (needs Supabase Pro or custom SMTP): Dashboard → Authentication → Email Templates → "Magic link or OTP" → replace body with `{{ .Token }}` markup so users get a 6-digit code instead of a magic link. Documented as explicitly pending in `Milestone 1.md` §5.
+- [ ] **Email OTP template customization**: Dashboard → Authentication → Email Templates → "Magic link or OTP" → replace body with `{{ .Token }}` markup so users get a 6-digit code instead of a magic link. Documented as explicitly pending in `Milestone 1.md` §5.
+- [ ] **Custom SMTP via Resend** (production email sending, separate from the template edit above): steps now in `Milestone 1 manual steps.md` Step A.3c. Needed before real user volume — Supabase's default mailer is rate-limited to a few emails/hour. Already costed in `Planning docs/Costing.md` §8 (free tier, ₹0/month).
 - [ ] Google OAuth: create the Android OAuth client in Google Cloud Console with your debug SHA-1, paste Client ID/Secret into Supabase → Authentication → Providers → Google
 - [ ] Turn OFF "Verify JWT with legacy secret" in Supabase Dashboard → Edge Functions → `api` → Settings (required for `/v1/health` and other public routes to work)
 - [ ] Fill real values into `baker_ally_flutter/.env` (`SUPABASE_URL`, `SUPABASE_ANON_KEY`, `API_BASE_URL`)
